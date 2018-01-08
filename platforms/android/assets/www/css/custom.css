@@ -1,0 +1,170 @@
+/* Prevent FOUC */
+body { opacity: 0; }
+
+
+/* CSS CUSTOM */
+.logo{
+    margin:50px 0px;
+}
+.logo img{
+    max-width:100%;
+}
+.nd2-sidepanel-profile{
+    background-color: #03A9F4;
+    color: rgba(255,255,255,0.85);    
+}
+.response_msg{
+    text-align:center;
+    margin:20px 5px;
+    font-size:.9em;
+}
+
+/* menu */
+.nd2-sidepanel-profile{
+    padding: 2em 1em 2em 1em;
+}
+.menu-logout{
+    position:absolute;
+    bottom:10px;
+}
+.menu-logout img{
+    max-width:40px;
+}
+
+/* ajax loader message */
+.ajax_loader_msg{
+    background: url("../img/ajax-loader-small.gif") no-repeat center left;
+    padding:5px 0px 5px 28px;    
+    color:#666666;
+}
+
+/* jquery mobile loader */
+.ui-loader-background {
+    width:100%;
+    height:100%;
+    top:0;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.3);
+    display:none;
+    position: fixed;
+    z-index:100;
+}
+.ui-loading .ui-loader-background {
+    display:block;
+}
+
+/* footer */
+.ui-page-theme-a .ui-footer{
+    background-color: #03A9F4;
+    color: rgba(255,255,255,0.85);
+}
+
+/* log_import */
+.log_import li{
+    clear:both;
+}
+.log_import li img.ui-thumbnail-circular{
+    max-width:80px;
+    float:left;
+}
+.log_import li h2{
+    padding:22px 0px;
+}
+
+
+/* style per forzare una pagina in landscape*/
+@media only screen and (orientation:portrait){
+    
+    /*inserire l'elenco degli id delle pagine da mostrare solo landscape*/
+    #ordiniCreazioneStep2Page { display:none; }
+    
+    #warning-message-portrait {
+        text-align:center;
+        font-size:1.4em;
+        padding:50px 30px;
+        display:block;
+        color: #03A9F4;
+    }
+}
+@media only screen and (orientation:landscape){
+    #warning-message-portrait { display:none; }
+}
+
+
+/* tabella righe ordine */
+table#righe-ordine{
+    width:100%;
+}
+table#righe-ordine th{
+    padding: 8px 0px 5px 0px;
+    font-size:1em;
+    text-transform: uppercase;
+    border-bottom:1px solid #aaaaaa;
+}
+table#righe-ordine td{
+    padding: 10px 6px;
+    font-size:1em;
+    border-bottom:1px solid #eeeeee;
+}
+table#righe-ordine td.campo_omaggio{
+    padding: 10px 0px 10px 6px;
+}
+table#righe-ordine td.campo_sconto{
+    padding: 10px 6px 10px 0px;
+}
+table#righe-ordine tbody td input{
+    font-size:0.8em;
+    width:99%;
+    border: 1px solid #eeeeee;
+    padding: 4px 1px;
+}
+table#righe-ordine tbody td input[type="checkbox"]{
+    width:13px;
+}
+table#righe-ordine tbody td a{
+    margin-left:3px;
+}
+table#righe-ordine td .ui-input-text{
+    margin-bottom:4px;
+}
+
+
+/* dimensione icone */
+.zmdi.zmdi-hc-2x{
+    font-size:22px;
+    vertical-align: middle;
+}
+
+
+/* popup */
+.ui-popup .ui-header .ui-title{
+    margin:0px 18px;
+    line-height: 1.4em;
+}
+.ui-popup #popupRicercaArticolo .ui-content{
+    padding:15px;
+}
+
+/* lista popup ricerca articolo*/
+ul#search_item{
+    list-style-type: none;
+    -webkit-margin-before: 0em;
+    -webkit-margin-after: 0em;
+    -webkit-margin-start: 0px;
+    -webkit-margin-end: 0px;
+    -webkit-padding-start: 0px;
+}
+ul#search_item li{
+    list-style-type: none; 
+    border-bottom: 1px solid #eeeeee;
+}
+ul#search_item li a{
+    text-decoration: none;
+    line-height: 2.5em;
+}
+
+/* configurazione tabs */
+.nd2Tabs{
+    background-color: #999999;
+    margin-left:40px;
+}

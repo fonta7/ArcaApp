@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Arca Distribution - Selezione Cliente</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+	<link rel="stylesheet" href="vendor/waves/waves.min.css" />
+	<link rel="stylesheet" href="vendor/wow/animate.css" />
+	<link rel="stylesheet" href="css/nativedroid2.css" />
+	<link rel="stylesheet" href="css/nativedroid2.color.light-blue.css" />
+	<link rel="stylesheet" href="css/custom.css" />
+
+</head>
+<body>
+
+	<div data-role="page" id="ordiniCreazioneStep3Page" >
+
+		<!-- include slide menu -->
+		<nd2-include data-src="menu.left.html"></nd2-include>
+		
+		<!-- header -->
+		<div data-role="header" data-position="fixed">
+			<a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
+			<h1 class="wow fadeIn" data-wow-delay='0.4s'>Completa l'Ordine</h1>
+		</div>
+		
+		<!-- tabs -->
+		<ul data-role="nd2tabs" data-swipe="true" >
+			<li data-tab="dati-aggiuntivi">Dati Aggiuntivi</li>
+			<li data-tab="indirizzo-spedizione">Indirizzo</li>
+			<li data-tab="note">Note</li>
+		</ul>
+		
+		<!-- footer -->
+		<div data-role="footer" data-position="fixed">
+
+			<div class="row center-xs">
+				<div class="col-xs-6">
+					<div class="box">
+						<!--<a href="ordini_creazione_step2.html" class="ui-btn ui-mini nd2-btn-icon-block"><i class='zmdi zmdi-menu'></i> torna alle righe ordine</a>-->
+					</div>
+				</div>
+				<div class="col-xs-6">
+					<div class="box">
+						<a href="ordini_creazione_step4.html" class="ui-btn ui-mini nd2-btn-icon-block"><i class='zmdi zmdi-mail-send'></i> invia l'ordine</a>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+
+		<!-- login content page -->
+		<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" >
+			
+			<!-- login form -->
+			<form id="complete_order" >
+				
+				<!-- dati aggiuntivi -->
+				<div data-role="nd2tab" data-tab="dati-aggiuntivi">
+					
+					<!-- modalità di pagamento -->
+					<label for="modalita_pagamento" class="select">Modalit&agrave di pagamento</label>
+					<select id="modalita_pagamento" ></select>
+					
+					<br/>
+					
+					<!-- data di consegna -->
+					<label for="data_consegna">Data di consegna</label>
+					<input type="date" name="data_consegna" id="data_consegna" value="" placeholder="">
+					
+				</div>	
+				
+				
+				<!-- indirizzo di spedizione -->
+				<div data-role="nd2tab" data-tab="indirizzo-spedizione">
+					
+					<b>INDIRIZZO DI FATTURAZIONE</b><br/>
+					<span id="indirizzo_fatturazione"></span>
+					
+					<br/><br/>
+					
+					<b>INDIRIZZO DI SPEDIZIONE</b>
+					<label>Compilare solo se diverso dall'indirizzo di fatturazione</label><br/>
+					
+					<label for="name2b">Indirizzo</label>
+					<input type="text" name="name2" id="name2b" value="" placeholder="" >
+					
+					<br/>
+					
+					<label for="name2b">CAP</label>
+					<input type="text" name="name2" id="name2b" value="" placeholder="" >
+					
+					<br/>
+					
+					<label for="name2b">Citt&agrave;</label>
+					<input type="text" name="name2" id="name2b" value="" placeholder="" >
+					
+					<br/>
+					
+					<label for="name2b">Provincia</label>
+					<input type="text" name="name2" id="name2b" value="" placeholder="" >
+					
+				</div>
+				
+				
+				<!-- note -->
+				<div data-role="nd2tab" data-tab="note">
+					
+					<label for="textarea2b">Note aggiuntive</label>
+					<textarea cols="40" rows="8" name="textarea2" id="textarea2b" placeholder="..."></textarea>
+					
+				</div>
+				
+			</form>
+
+		</div>
+		
+		<!--<div data-role="footer" data-position="fixed"></div>-->
+		
+	</div>
+	
+	<!-- inclusioni js obbligatorie -->
+	<script src="js/jquery.min.2.1.4.js"></script>
+	<script src="js/jquery-ui.min.1.11.4.js"></script>
+	<script src="js/jquery.mobile.min.1.4.5.js"></script>
+	<script src="vendor/waves/waves.min.js"></script>
+	<script src="vendor/wow/wow.min.js"></script>
+	<script src="js/nativedroid2.js"></script>
+	<script src="js/nd2settings.js"></script>
+	
+	<!-- funzioni js -->
+	<script src="js/utilities.js"></script>
+	<script src="js/functions.js"></script>
+	
+	<script src="cordova.js"></script>
+
+</body>
+</html>

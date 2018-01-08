@@ -1,0 +1,167 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Arca Distribution - Selezione Cliente</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<link rel="stylesheet" href="css/font-awesome.4.3.0.min.css" />
+	<link rel="stylesheet" href="css/jquery.mobile.1.4.5.min.css" />
+	<link rel="stylesheet" href="vendor/waves/waves.min.css" />
+	<link rel="stylesheet" href="vendor/wow/animate.css" />
+	<link rel="stylesheet" href="css/nativedroid2.css" />
+	<link rel="stylesheet" href="css/nativedroid2.color.light-blue.css" />
+	<link rel="stylesheet" href="css/custom.css" />
+
+	<style>
+		
+	</style>
+
+</head>
+<body>
+
+	<div data-role="page" id="ordiniCreazioneStep2Page" class="landscape-only" >
+
+		<!-- include slide menu -->
+		<nd2-include data-src="menu.left.html"></nd2-include>
+
+		<!-- header -->
+		<div data-role="header" data-position="fixed">
+			<a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
+			<h1 class="wow fadeIn" data-wow-delay='0.4s'>Creazione Righe Ordine</h1>
+		</div>
+
+		<!-- footer -->
+		<div data-role="footer" data-position="fixed">
+
+			<div class="row center-xs">
+				<div class="col-xs-6">
+					<div class="box">
+						<!-- <a href="#" class="ui-btn ui-mini nd2-btn-icon-block"><i class='zmdi zmdi-plus-circle'></i> aggiungi riga</a> -->
+					</div>
+				</div>
+				<div class="col-xs-6">
+					<div class="box">
+						<a href="javascript:void(0);" class="ui-btn ui-mini nd2-btn-icon-block" onClick="creaOrdine_AggiungiRighe()" >
+							<i class='zmdi zmdi-check-circle'></i> completa ordine
+						</a>
+					</div>
+				</div>
+			</div>
+			
+		</div>
+
+		<!-- login content page -->
+		<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" >
+			
+			<!-- login form -->
+			<form id="create_order" >
+				
+				<!-- tabella con righe ordine-->
+				<table id="righe-ordine" border=0 cellspacing=0 cellpadding=0 width=100% >
+					
+					<!-- header -->
+					<thead>
+						<tr>
+							<th></th>
+							<th></th>
+							<th>codice</th>
+							<th>descrizione</th>
+							<th>prezzo</th>
+							<th>qt&agrave;</th>
+							<th colspan=2 >omag/scon</th>
+							<th>totale</th>
+						</tr>						
+					</thead>
+					
+					<!-- body -->
+					<tbody></tbody>
+
+				</table>
+				
+				<!-- id riga selezionata per la ricerca articolo -->
+				<input type="text" id="rigaInserimentoArticolo" value="">
+				
+				<!-- popup ricerca articolo -->
+				<div data-role="popup" id="popupRicercaArticolo" >
+					<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+					<div data-role="header">
+						<h1 class='nd-title'>ARTICOLI TROVATI</h1>
+					</div>
+					<div data-role="content">
+						
+						<!-- elenco articoli risultati ricerca -->
+						<form>				
+							<span id="search_list"></span>				
+						</form>
+						
+					</div>
+				</div>
+
+				<!-- popup selezione taglie colori -->
+				<div data-role="popup" id="popupSelezioneTaglieColori" >
+					<!-- <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a> -->
+					<div data-role="header">
+						<h1 class='nd-title'>SELEZIONE TAGLIA / COLORE</h1>
+					</div>
+					<div data-role="content">
+						
+						<!-- form di selezione taglia / colore -->
+						<form>
+							<span id="selezione_taglia">
+								<label for="taglia" class="select">Taglia</label>
+								<select id="taglia" class="select-popup" ></select>
+							</span>
+							
+							<span id="selezione_colore">
+								<label for="colore" class="select">Colore</label>
+								<select id="colore" class="select-popup" ></select>
+							</span>
+							
+							<input type="hidden" id="id_riga_caratteristiche" value="" >
+							<input type="hidden" id="tipo_selezione_caratteristiche" value="" >
+							<button type="button" id="select_taglia_colore" class="ui-btn ui-btn-raised clr-primary" onClick="impostaCaratteristicheArticolo();" >SELEZIONA</button>
+						</form>
+						
+					</div>
+				</div>
+				
+				<!-- popup segnalazione -->
+				<div data-role="popup" id="popupSegnalazione" >
+					<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+					<div data-role="header">
+						<h1 class='nd-title'>ATTENZIONE !</h1>
+					</div>					
+					<div data-role="content">
+						<span id="popupSegnalazioneContent" ></span>
+					</div>
+				</div>					
+
+			</form>
+
+		</div>
+		
+		<!--<div data-role="footer" data-position="fixed"></div>-->
+		
+	</div>
+	
+	<div id="warning-message-portrait">
+		Ruota il telefono in orizzontale per procedere con l'inserimento delle righe ordine!
+	</div>	
+	
+	<!-- inclusioni js obbligatorie -->
+	<script src="js/jquery.min.2.1.4.js"></script>
+	<script src="js/jquery-ui.min.1.11.4.js"></script>
+	<script src="js/jquery.mobile.min.1.4.5.js"></script>
+	<script src="vendor/waves/waves.min.js"></script>
+	<script src="vendor/wow/wow.min.js"></script>
+	<script src="js/nativedroid2.js"></script>
+	<script src="js/nd2settings.js"></script>
+	
+	<!-- funzioni js -->
+	<script src="js/utilities.js"></script>
+	<script src="js/functions.js"></script>
+	
+	<script src="cordova.js"></script>
+
+</body>
+</html>
