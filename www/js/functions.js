@@ -400,7 +400,7 @@ function creaRigheOrdine(id_riga) {
                   "<input type=\"hidden\" id=\"taglia_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
                   "<input type=\"hidden\" id=\"colore_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
                   //campi visualizzazione
-                  "<span id=\"view_descrizione_" + id_riga + "\" ></span>" +
+                  "<span id=\"view_descrizione_" + id_riga + "\" class=\"descrizione_articolo\" ></span>" +
                   "<span id=\"view_taglia_" + id_riga + "\" ></span>" +
                   "<span id=\"view_colore_" + id_riga + "\" ></span>" +
                 "</td>" +
