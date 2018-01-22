@@ -400,7 +400,7 @@ function creaRigheOrdine(id_riga) {
                   "<input type=\"hidden\" id=\"taglia_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
                   "<input type=\"hidden\" id=\"colore_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
                   //campi visualizzazione
-                  "<span id=\"view_descrizione_" + id_riga + "\" ></span>" +
+                  "<span id=\"view_descrizione_" + id_riga + "\" class=\"descrizione_articolo\" ></span>" +
                   "<span id=\"view_taglia_" + id_riga + "\" ></span>" +
                   "<span id=\"view_colore_" + id_riga + "\" ></span>" +
                 "</td>" +
@@ -544,7 +544,7 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     }
 
   });
-  
+    
 
   //se l'articolo non è disponibile mostro il popup di segnalazione
 
@@ -606,20 +606,11 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     $('#tipo_selezione_caratteristiche').val(selezione_taglia_colore);
     
     //apertura del popup
-    if(tipo === 'popup'){
-      
-      $( '#popupRicercaArticolo' ).on({
-        popupafterclose: function() {
-          setTimeout( function(){ $( '#popupSelezioneTaglieColori' ).popup("open", "pop"); }, 100 );
-        }
-      });
-    
-    }else{
-      $("#popupSelezioneTaglieColori").popup("open", "pop");
-    }
+    $("span.select-popup").html('&nbsp;');
+    setTimeout( function(){ $( '#popupSelezioneTaglieColori' ).popup("open", "pop"); }, 100 );
     
   }
-   
+  
   //compilo i campi della riga
   $('#codice_' + id_riga).val(codice_articolo_selezionato);
   $('#descrizione_' + id_riga).val(descrizione);
@@ -873,4 +864,129 @@ $( document ).on( "pageinit", "#ordiniCreazioneStep3Page", function() {
   indirizzo_fatturazione+= cap + " " + citta + " (" + provincia + ")"; 
   $('#indirizzo_fatturazione').html(indirizzo_fatturazione);
   
+  
+  
+  //funzione per completare l'ordine con le informazioni aggiuntive
+  $( "#completa_ordine" ).bind( "click", function(){
+  
+    //aggiungo le info aggiuntive all'ordine
+    var ordine = JSON.parse(localStorage.getItem('ordine'));  
+    
+    ordine.modalita_pagamento = $('#modalita_pagamento').val();
+    ordine.data_consegna = $('#data_consegna').val();
+    ordine.spedizione_indirizzo = $('#spedizione_indirizzo').val();
+    ordine.spedizione_cap = $('#spedizione_cap').val();
+    ordine.spedizione_citta = $('#spedizione_citta').val();
+    ordine.spedizione_provincia = $('#spedizione_provincia').val();
+    ordine.note = $('#note').val();
+    
+    //mostro in console l'ordine aggiornato
+    console.log(ordine);
+    
+    //risalvo l'ordine in locale
+    var ordine_json = JSON.stringify(ordine);
+    localStorage.setItem('ordine', ordine_json);
+  
+    //reindirizzo allo step4
+    location.href="ordini_creazione_step4.html";
+    
+  });
+  
+  
 });
+
+
+
+//////////////////////////////////////////////////
+// ORDINI STEP4 - ESPORTAZIONE
+//////////////////////////////////////////////////
+
+$( document ).on( "pageinit", "#exportOrderPage", function() {
+
+  //funzione di esportazione ordini
+  $( "#export_form_submit" ).bind( "click", function(){
+
+    //resetto il msg response
+    $.mobile.loading( "show", {
+      text: "esportazione ordini in corso, attendere",
+      textVisible: true,
+      theme: "",
+      html: ""
+    });
+    
+    //resetto il messaggio iniziale alla lista di esportazione
+    $('.response_msg').html("");
+    
+    //recupero i dati dell'agente
+    var agente = JSON.parse(localStorage.getItem('agente'));
+    
+    //recupero l'ordine corrente
+    var json_ordine = localStorage.getItem('ordine');
+
+    var codice_agente = agente.codice;
+    var token = agente.token;
+    
+    console.log('IMPORTAZIONE ORDINE CORRENTE >> ' + json_ordine);
+    
+    //invio via ajax l'ordine corrente
+    $.ajax({
+      url: API_PATH + 'ordini.php',
+      type: "POST",   
+      crossDomain: true,
+      data: {
+        codice_agente: codice_agente,
+        token: token,
+        action: 'inserisci_ordine',
+        json_ordine: json_ordine
+      },
+      success: function(response){
+        
+        var response_array = response.split("|");
+        var status = response_array[0];
+        var description = response_array[1];
+        
+        if(status=='OK'){
+          
+          //mostro il messaggio di importazione
+          $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ORDINE ESPORTATO CORRETTAMENTE</h2></li>");
+          $.mobile.loading( "hide" );
+          
+          //rimuovo l'ordine
+          localStorage.removeItem('ordine');
+          
+          
+        }else if(status=='KO'){
+          
+          $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ERRORE ESPORTAZIONE ORDINE</h2><br><p>" + description + "</p></li>");
+          $.mobile.loading( "hide" );
+        
+        }else{
+          
+          alert(response);
+          
+        }
+    
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        
+        //se non è presente una connessione allora procedo con il salvataggio in locale dell'ordine
+        alert("Connessione assente, effettuare l'esportazione con una connessione attiva");
+        
+        //verifico se è già presente nel localstorage il file contenente gli ordini da esportare
+        //if(localStorage.getItem('ordini_da_esportare') !== null){
+        //  alert('creazione archivio ordine');
+        //}
+        
+        //aggiungo l'ordine corrente all'archivio ordini da esportare
+        
+        
+        //cancello l'ordine corrente
+        
+        
+      }
+    });  
+    
+  });
+  
+});
+

@@ -8,16 +8,37 @@ var NUMERO_RIGHE_ORDINE = 20;
 //////////////////////////////////////////////////
 // LOGIN e LOGOUT
 //////////////////////////////////////////////////
+$("#loginPage").on("pagecreate", function(){
+  
+  if(localStorage.getItem('credenziali') !== null){
+      
+    var credenziali = JSON.parse(localStorage.getItem('credenziali'));
+    if(credenziali.expiration_date >= today()){
+      
+      document.getElementById('username').value = credenziali.username;
+      document.getElementById('password').value = credenziali.password;
+      
+    }else{
+      
+      document.getElementById('username').value = "";
+      document.getElementById('password').value = "";
+      
+    }
+    
+  }
+  
+});
 
 //funzione di login
-$( "#login_form_submit" ).bind( "click", function(event, ui) {
+$( "#login_form_submit" ).bind( "click", function(){
   
   //resetto il msg response
   $('.response_msg').html("<span class=\"ajax_loader_msg\" >login in corso</span>");
   
   //recupero username e password
   var username = document.getElementById('username').value;
-  var password = MD5(document.getElementById('password').value);
+  var password = document.getElementById('password').value;
+  var md5_password = MD5(password);
   
   //effettuo la chiamata ajax ad arcadistribution.com
   $.ajax({
@@ -26,7 +47,7 @@ $( "#login_form_submit" ).bind( "click", function(event, ui) {
     crossDomain: true,
     data: {
       username: username,
-      password: password
+      password: md5_password
     },
     success: function(response){
       
@@ -54,6 +75,40 @@ $( "#login_form_submit" ).bind( "click", function(event, ui) {
           
           //mostro il messaggio di login
           $('.response_msg').html("<span class='clr-green' >Login effettuato correttamente</span>");
+          
+          
+          //memorizzazione credenziali di accesso
+          if(document.getElementById('save_credential').checked === true){
+            
+            //recupero dallo storage il file con le credenziali salvate
+            var aggiorna_credenziali = true;
+            if(localStorage.getItem('credenziali') !== null){
+                
+              var credenziali = JSON.parse(localStorage.getItem('credenziali'));       
+              if(credenziali.expiration_date < today()){
+                aggiorna_credenziali = false;
+              }
+                
+            }
+            
+            //se non sono mai state salvate le credenziali o se la data di scadenza è passata
+            if(aggiorna_credenziali === true){
+              var credenziali_nuove = {};
+              credenziali_nuove.username = username;
+              credenziali_nuove.password = password;
+              
+              var date = new Date();
+              date.setDate(date.getDate() + 7);             
+              var expiration_date = date.getFullYear() + '' + (date.getMonth()+1) + '' + date.getDate();             
+              credenziali_nuove.expiration_date = expiration_date;
+              
+              localStorage.setItem('credenziali', JSON.stringify(credenziali_nuove));
+            }
+            
+          }else{
+            localStorage.removeItem('credenziali');
+          }
+          
           
           //reindirizzo all'homepage
           setTimeout(function(){
@@ -282,8 +337,28 @@ function importModalitaPagamento(codice_agente, token){
 //////////////////////////////////////////////////
 // ORDINI STEP1 - RICERCA CLIENTE
 //////////////////////////////////////////////////
-$( document ).on( "pageinit", "#ordiniCreazioneStep1Page", function() {
+$( document ).on( "pagecreate", "#ordiniCreazioneStep1Page", function() {
   
+  //carico l'elenco completo dei clienti
+  var clienti = JSON.parse(localStorage.getItem('clienti'));
+
+  //ciclo l'elenco dei clienti
+  html = "";
+  $.each( clienti, function( id_tco, cliente ){
+    html += "<li>";
+      html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
+        html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
+      html += "</a>";
+    html += "</li>";
+  });
+
+  $('#search_customer').html( html );
+  $('#search_customer').listview( "refresh" );
+  $('#search_customer').trigger( "updatelayout");
+  
+  
+  
+  //istanzio il filtro
   $( "#search_customer" ).on( "filterablebeforefilter", function ( e, data ) {
     var $ul = $( this ),
         $input = $( data.input ),
@@ -408,7 +483,7 @@ function creaRigheOrdine(id_riga) {
                   "<input type=\"text\" name=\"prezzo\" id=\"prezzo_" + id_riga + "\" value=\"\" style=\"text-align:right\" READONLY >" +
                 "</td>" +
                 "<td>" +
-                  "<input type=\"text\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right\" onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
+                  "<input type=\"text\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right\" onChange=\"ricalcolaTotali(" + id_riga + ");\" onFocus=\"verificaArticoloSelezionato(" + id_riga + ");\" >" +
                 "</td>" +
                 "<td class=\"campo_omaggio\">" +
                   "<input type=\"checkbox\" id=\"omaggio_" + id_riga + "\" value=\"1\"  onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
@@ -423,6 +498,17 @@ function creaRigheOrdine(id_riga) {
   
   $('#righe-ordine tbody').append(riga);
 
+}
+
+//funzione attivata all'onfocus sul campo qta
+//per verificare se l'articolo è già stato caricato o va effettuata la ricerca
+function verificaArticoloSelezionato(id_riga){
+  
+  //se è stato inserito il codice ma non è stato ancora valorizzato il prezzo verifico se il campo descrizione è già stato valorizzato
+  if(document.getElementById('codice_' + id_riga).value !== "" && document.getElementById('prezzo_' + id_riga).value === ""){
+    ricercaArticolo(id_riga);
+  }
+  
 }
 
 //funzione per effettuare la ricerca dell'articolo
@@ -544,7 +630,7 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     }
 
   });
-  
+    
 
   //se l'articolo non è disponibile mostro il popup di segnalazione
 
@@ -606,20 +692,11 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     $('#tipo_selezione_caratteristiche').val(selezione_taglia_colore);
     
     //apertura del popup
-    if(tipo === 'popup'){
-      
-      $( '#popupRicercaArticolo' ).on({
-        popupafterclose: function() {
-          setTimeout( function(){ $( '#popupSelezioneTaglieColori' ).popup("open", "pop"); }, 100 );
-        }
-      });
-    
-    }else{
-      $("#popupSelezioneTaglieColori").popup("open", "pop");
-    }
+    $("span.select-popup").html('&nbsp;');
+    setTimeout( function(){ $( '#popupSelezioneTaglieColori' ).popup("open", "pop"); }, 100 );
     
   }
-   
+  
   //compilo i campi della riga
   $('#codice_' + id_riga).val(codice_articolo_selezionato);
   $('#descrizione_' + id_riga).val(descrizione);
@@ -873,4 +950,129 @@ $( document ).on( "pageinit", "#ordiniCreazioneStep3Page", function() {
   indirizzo_fatturazione+= cap + " " + citta + " (" + provincia + ")"; 
   $('#indirizzo_fatturazione').html(indirizzo_fatturazione);
   
+  
+  
+  //funzione per completare l'ordine con le informazioni aggiuntive
+  $( "#completa_ordine" ).bind( "click", function(){
+  
+    //aggiungo le info aggiuntive all'ordine
+    var ordine = JSON.parse(localStorage.getItem('ordine'));  
+    
+    ordine.modalita_pagamento = $('#modalita_pagamento').val();
+    ordine.data_consegna = $('#data_consegna').val();
+    ordine.spedizione_indirizzo = $('#spedizione_indirizzo').val();
+    ordine.spedizione_cap = $('#spedizione_cap').val();
+    ordine.spedizione_citta = $('#spedizione_citta').val();
+    ordine.spedizione_provincia = $('#spedizione_provincia').val();
+    ordine.note = $('#note').val();
+    
+    //mostro in console l'ordine aggiornato
+    console.log(ordine);
+    
+    //risalvo l'ordine in locale
+    var ordine_json = JSON.stringify(ordine);
+    localStorage.setItem('ordine', ordine_json);
+  
+    //reindirizzo allo step4
+    location.href="ordini_creazione_step4.html";
+    
+  });
+  
+  
 });
+
+
+
+//////////////////////////////////////////////////
+// ORDINI STEP4 - ESPORTAZIONE
+//////////////////////////////////////////////////
+
+$( document ).on( "pageinit", "#exportOrderPage", function() {
+
+  //funzione di esportazione ordini
+  $( "#export_form_submit" ).bind( "click", function(){
+
+    //resetto il msg response
+    $.mobile.loading( "show", {
+      text: "esportazione ordini in corso, attendere",
+      textVisible: true,
+      theme: "",
+      html: ""
+    });
+    
+    //resetto il messaggio iniziale alla lista di esportazione
+    $('.response_msg').html("");
+    
+    //recupero i dati dell'agente
+    var agente = JSON.parse(localStorage.getItem('agente'));
+    
+    //recupero l'ordine corrente
+    var json_ordine = localStorage.getItem('ordine');
+
+    var codice_agente = agente.codice;
+    var token = agente.token;
+    
+    console.log('IMPORTAZIONE ORDINE CORRENTE >> ' + json_ordine);
+    
+    //invio via ajax l'ordine corrente
+    $.ajax({
+      url: API_PATH + 'ordini.php',
+      type: "POST",   
+      crossDomain: true,
+      data: {
+        codice_agente: codice_agente,
+        token: token,
+        action: 'inserisci_ordine',
+        json_ordine: json_ordine
+      },
+      success: function(response){
+        
+        var response_array = response.split("|");
+        var status = response_array[0];
+        var description = response_array[1];
+        
+        if(status=='OK'){
+          
+          //mostro il messaggio di importazione
+          $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ORDINE ESPORTATO CORRETTAMENTE</h2></li>");
+          $.mobile.loading( "hide" );
+          
+          //rimuovo l'ordine
+          localStorage.removeItem('ordine');
+          
+          
+        }else if(status=='KO'){
+          
+          $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ERRORE ESPORTAZIONE ORDINE</h2><br><p>" + description + "</p></li>");
+          $.mobile.loading( "hide" );
+        
+        }else{
+          
+          alert(response);
+          
+        }
+    
+      },
+      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        
+        //se non è presente una connessione allora procedo con il salvataggio in locale dell'ordine
+        alert("Connessione assente, effettuare l'esportazione con una connessione attiva");
+        
+        //verifico se è già presente nel localstorage il file contenente gli ordini da esportare
+        //if(localStorage.getItem('ordini_da_esportare') !== null){
+        //  alert('creazione archivio ordine');
+        //}
+        
+        //aggiungo l'ordine corrente all'archivio ordini da esportare
+        
+        
+        //cancello l'ordine corrente
+        
+        
+      }
+    });  
+    
+  });
+  
+});
+
