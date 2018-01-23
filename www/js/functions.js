@@ -344,7 +344,7 @@ $( document ).on( "pagecreate", "#ordiniCreazioneStep1Page", function() {
 
   //ciclo l'elenco dei clienti
   html = "";
-  $.each( clienti, function( id_tco, cliente ){
+  $.each( clienti, function( id, cliente ){
     html += "<li>";
       html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
         html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
@@ -377,7 +377,7 @@ $( document ).on( "pagecreate", "#ordiniCreazioneStep1Page", function() {
 
       //ciclo l'elenco dei clienti
       html = "";
-      $.each( clienti, function( id_tco, cliente ){
+      $.each( clienti, function( id, cliente ){
         html += "<li>";
           html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
             html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
@@ -472,8 +472,12 @@ function creaRigheOrdine(id_riga) {
                 "<td>" +
                   //campi input
                   "<input type=\"text\" id=\"descrizione_" + id_riga + "\" class=\"ricerca_articolo\" value=\"\" data-clear-btn=\"false\" >" +
-                  "<input type=\"hidden\" id=\"taglia_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
-                  "<input type=\"hidden\" id=\"colore_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
+                  //campi input nascosti
+                  "<input type=\"hidden\" id=\"taglia_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"colore_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"min-qta_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"max-sconto_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"tipo-sconto_" + id_riga + "\" value=\"\" >" +
                   //campi visualizzazione
                   "<span id=\"view_descrizione_" + id_riga + "\" class=\"descrizione_articolo\" ></span>" +
                   "<span id=\"view_taglia_" + id_riga + "\" ></span>" +
@@ -526,6 +530,7 @@ function ricercaArticolo(id_riga){
   var risultati_ricerca = [];
   $.each( articoli, function( codice_articolo, articolo ){
     var descrizione_articolo = articolo.descrizione;
+    var confezione_articolo = articolo.confezione;
     
     //aggiungo un carattere fittizio davanti a codice articolo e descrizione
     codice_articolo_confronto = "#" + codice_articolo;
@@ -534,13 +539,13 @@ function ricercaArticolo(id_riga){
     //se è stato inserito il codice articolo effettuo la ricerca solo per codice (dall'inizio della stringa)
     if(codice_ricerca !== "" && codice_articolo_confronto.toLowerCase().indexOf( codice_ricerca.toLowerCase() ) === 1){
       
-      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo);
+      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo);
       numero_risultati_ricerca++;
     
     }//altrimenti effettuo la ricerca per descrizione (all'interno della stringa)
     else if(codice_ricerca === "" && descrizione_ricerca !== "" && descrizione_articolo_confronto.toLowerCase().indexOf( descrizione_ricerca.toLowerCase() ) > 0){
       
-      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo);
+      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo);
       numero_risultati_ricerca++;
       
     }
@@ -570,7 +575,13 @@ function ricercaArticolo(id_riga){
       var dati_articolo = articolo.split("|");
       list += "<li>";
         list += "<a href=\"javascript:void(0);\" onClick=\"inserisciRigaArticolo(" + id_riga + ", '" + dati_articolo[0] + "', 'popup');\" >";
-          list += dati_articolo[0] + " - " + dati_articolo[1];
+          
+          descrizione_articolo = dati_articolo[1];
+          if(dati_articolo[1].length>50){
+            descrizione_articolo = dati_articolo[1].substring(1, 47) + "...";
+          }        
+          list += dati_articolo[0] + " | " + descrizione_articolo + " | " + dati_articolo[2];
+          
         list += "</a>";
       list += "</li>";
     });
@@ -618,23 +629,90 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
       numero_max=articolo.numero_max;
       taglie=articolo.taglie;
       colori=articolo.colori;
-      disponibile=articolo.disponibile;
+      disponibile=articolo.disponibile * 1;
       disponibile_da=articolo.disponibile_da;
       prezzo_listino=articolo.prezzo_listino;
       prezzo_scontato=articolo.prezzo_scontato;
       
+      //campi per il calcolo delle scontistiche
+      qta_min=0;//imposto di default la qta minima articoli a 0
+			sconto_max=articolo.sconto_max * 1;			
+			qta1=articolo.qta1 * 1;
+			sconto_qta1=articolo.sconto_qta1 * 1;
+			qta2=articolo.qta2 * 1;
+			sconto_qta2=articolo.sconto_qta2 * 1;
+			qta3=articolo.qta3 * 1;
+			sconto_qta3=articolo.sconto_qta3 * 1;
+      
       //esco dal ciclo
       return false;
-      
-      
+            
     }
 
   });
     
 
-  //se l'articolo non è disponibile mostro il popup di segnalazione
-
+    
+  //STEP 1
+  //se l'articolo non è disponibile mostro il popup di segnalazione  
+  if(disponibile != 1){  
+    var msg="";
+    msg = "L'articolo momentaneamente non \u00E8 disponibile a magazzino.";
+		if(disponibile_da !== "") msg += "\nL'articolo sar\u00E1 nuovamente disponibile dal " + disponibile_da + ".";
+    
+    alert(msg);
+    //$("#popupSegnalazioneContent").html(msg);
+    //$("#popupSegnalazione").popup("open", "pop");
+  }
   
+  
+  
+  //STEP 2
+  //se per l'articolo è disponibile una promo mostro il popup di selezione
+  var box_promozioni = "";
+  var tipo_sconto = "";
+  var sconto_max = 0;
+  var qta_min = 0;
+  if(qta1>0){
+  
+    var string_qtal = "Nessuno sconto presente";
+    if(sconto_max !== 0)
+      string_qtal = "Sconto Max " + sconto_max + " %";
+      
+    box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qtal\" onClick=\"selezionaPromoQta('', " + sconto_max + "); ricalcolaTotaleRiga();\" CHECKED >&nbsp;Quantit&agrave; Libera - " + string_qtal;
+    box_promozioni += "<br/>";
+    box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qta1\" onClick=\"selezionaPromoQta(" + qta1 + ", " + sconto_qta1 + "); ricalcolaTotaleRiga();\" >&nbsp;Promo " + qta1 + " PZ - Sconto Max " + sconto_qta1 + " %";
+    
+    if(qta2>0){
+      box_promozioni += "<br/>";
+      box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qta2\" onClick=\"selezionaPromoQta(" + qta2 + ", " + sconto_qta2 + "); ricalcolaTotaleRiga();\" >&nbsp;Promo " + qta2 + " PZ - Sconto Max " + sconto_qta2 + " %";
+    }
+    
+    if(qta3>0){
+      box_promozioni += "<br/>";
+      box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qta3\" onClick=\"selezionaPromoQta(" + qta3 + ", " + sconto_qta3 + "); ricalcolaTotaleRiga();\" >&nbsp;Promo " + qta3 + " PZ - Sconto Max " + sconto_qta3 + " %";
+    }
+    
+    tipo_sconto = "PQ";//promo qta
+    
+  }else if(sconto_max !== 0){//sconto massimo impostato
+    
+    box_promozioni += "Lo sconto massimo applicabile per l'articolo &egrave; " + sconto_max + "%.";    
+    qta_min=0;
+    tipo_sconto="PF";//promo fissa
+    
+  }else{//nessuna promo o sconto arriva per l'articolo
+    
+    qta_min = 0;
+    sconto_max = 0;
+    tipo_sconto = "PF";//promo fissa
+    
+  }
+  alert(box_promozioni);
+  
+  
+  
+  //STEP 3
   //se l'articolo è a taglia / colore mostro il popup di selezione
   var selezione_taglia_colore = "";
   if(taglie !== "" || colori !== ""){
@@ -702,6 +780,11 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
   $('#descrizione_' + id_riga).val(descrizione);
   $('#taglia_' + id_riga).val('');
   $('#colore_' + id_riga).val('');
+  
+  //campi relativi alle scontistiche
+  $('#min-qta_' + id_riga).val(qta_min);
+  $('#max-sconto_' + id_riga).val(sconto_max);
+  $('#tipo-sconto_' + id_riga).val(tipo_sconto);
   
   //riformatto il prezzo
   prezzo = number_format(prezzo_listino, 2, '.', '');
@@ -782,6 +865,17 @@ function impostaCaratteristicheArticolo(){
 //funzione per ricalcolare i totali di riga e di ordine
 function ricalcolaTotali(id_riga){
   
+  //ricalcolo i totali di riga
+  ricalcolaTotaliRiga(id_riga);
+  
+  //ricalcolo i totali ordine
+  ricalcolaTotaliOrdine();
+  
+}
+
+//funzione per ricalcolare i totali di riga
+function ricalcolaTotaliRiga(id_riga){
+  
   //recupero i dati necessari per il ricalcolo dei totali
   var prezzo = $('#prezzo_' + id_riga).val()*1;
   var qta = $('#qta_' + id_riga).val()*1;
@@ -806,6 +900,42 @@ function ricalcolaTotali(id_riga){
   $('#totale_' + id_riga).val(totale_riga);
   
 }
+
+//funzione per ricalcolare i totali ordine
+function ricalcolaTotaliOrdine(){
+  
+  //ciclo le righe per trovare la prima senza codice articolo
+  totale_lordo = totale_netto = 0;
+  righe_counter = 0;
+  for (i = 0; i < NUMERO_RIGHE_ORDINE; i++) { 
+    
+    totale_riga_lordo = totale_riga_netto = 0;
+    if( $('#codice_' + i).val() !== ""){
+      
+      prezzo = $('#prezzo_' + i).val();
+      qta = $('#qta_' + i).val();
+
+      totale_riga_lordo = prezzo * qta;
+      totale_riga_netto = $('#totale_' + i).val() * 1;
+
+    }
+    
+    totale_lordo += totale_riga_lordo;    
+    totale_netto += totale_riga_netto;
+    
+  }
+
+  //riformatto i totali
+  totale_lordo = number_format(totale_lordo, 2, '.', '');
+  totale_netto = number_format(totale_netto, 2, '.', '');
+  
+  //mostro a video i totali
+  $('#totale_lordo').val(totale_lordo);
+  $('#totale_netto').val(totale_netto);
+  
+} 
+
+
 
 //funzione per aggiungere le righe impostate all'ordine
 function creaOrdine_AggiungiRighe(){

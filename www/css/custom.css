@@ -19,6 +19,35 @@ body { opacity: 0; }
     font-size:.9em;
 }
 
+/* HEADER */
+.confirm-btn-header-right{
+    background: url('../img/button_confirm.png') no-repeat center center;
+    background-size: 58px 58px;
+}
+
+/* FOOTER */
+.ui-footer table#totali_ordine{
+    float:right;
+}
+.ui-footer table#totali_ordine label{
+    font-size:0.9em;
+    color:#eeeeee;
+}
+.ui-footer table#totali_ordine input{
+    text-align:right;
+}
+.ui-footer .ui-input-text input{
+    font-size:1.0em;
+    color:#ffffff;
+    text-shadow: none;
+}
+.ui-footer .ui-input-text{
+    margin: 0px;
+}
+.ui-footer .ui-body-inherit{
+    background-color: transparent;
+}
+
 /* menu */
 .nd2-sidepanel-profile{
     padding: 2em 1em 2em 1em;
