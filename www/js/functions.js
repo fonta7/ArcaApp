@@ -605,44 +605,14 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     $("#popupRicercaArticolo").popup("close", "pop");
   }
   
-  //recupero tutte le info per l'articolo ed imposto la riga
-  var descrizione="";
-  var confezione="";
-  var numero_max="";
-  var taglie="";
-  var colori="";
-  var disponibile="";
-  var disponibile_da="";
-  var prezzo_listino="";
-  var prezzo_scontato="";
-  
-  
+  var articolo_selezionato = {};
   var articoli = JSON.parse(localStorage.getItem('articoli'));
   $.each( articoli, function( codice_articolo, articolo ){
     
     if(codice_articolo === codice_articolo_selezionato){
       
-      //recupero le variabili dell'articolo
-      codice_articolo=articolo.codice;
-      descrizione=articolo.descrizione;
-      confezione=articolo.confezione;
-      numero_max=articolo.numero_max;
-      taglie=articolo.taglie;
-      colori=articolo.colori;
-      disponibile=articolo.disponibile * 1;
-      disponibile_da=articolo.disponibile_da;
-      prezzo_listino=articolo.prezzo_listino;
-      prezzo_scontato=articolo.prezzo_scontato;
-      
-      //campi per il calcolo delle scontistiche
-      qta_min=0;//imposto di default la qta minima articoli a 0
-			sconto_max=articolo.sconto_max * 1;			
-			qta1=articolo.qta1 * 1;
-			sconto_qta1=articolo.sconto_qta1 * 1;
-			qta2=articolo.qta2 * 1;
-			sconto_qta2=articolo.sconto_qta2 * 1;
-			qta3=articolo.qta3 * 1;
-			sconto_qta3=articolo.sconto_qta3 * 1;
+      //imposto l'articolo selezionato
+      articolo_selezionato = articolo;
       
       //esco dal ciclo
       return false;
@@ -650,54 +620,141 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     }
 
   });
+  
+  //salvo in console i dati dell'articolo
+  console.log(articolo_selezionato);
+  
+  //richiamo il popup del controllo disponibilità
+  popupDisponibilita(articolo_selezionato);
+  
+  
+
+////recupero tutte le info per l'articolo ed imposto la riga
+//  var descrizione="";
+//  var confezione="";
+//  var numero_max="";
+//  var taglie="";
+//  var colori="";
+//  var disponibile="";
+//  var disponibile_da="";
+//  var prezzo_listino="";
+//  var prezzo_scontato="";  
     
 
-    
-  //STEP 1
+//  //recupero le variabili dell'articolo
+//      codice_articolo=articolo.codice;
+//      descrizione=articolo.descrizione;
+//      confezione=articolo.confezione;
+//      numero_max=articolo.numero_max;
+//      taglie=articolo.taglie;
+//      colori=articolo.colori;
+
+//      prezzo_listino=articolo.prezzo_listino;
+//      prezzo_scontato=articolo.prezzo_scontato;
+
+  
+  
+//  //compilo i campi della riga
+//  $('#codice_' + id_riga).val(codice_articolo_selezionato);
+//  $('#descrizione_' + id_riga).val(descrizione);
+//  $('#taglia_' + id_riga).val('');
+//  $('#colore_' + id_riga).val('');
+//  
+//  //campi relativi alle scontistiche
+//  $('#min-qta_' + id_riga).val(qta_min);
+//  $('#max-sconto_' + id_riga).val(sconto_max);
+//  $('#tipo-sconto_' + id_riga).val(tipo_sconto);
+//  
+//  //riformatto il prezzo
+//  prezzo = number_format(prezzo_listino, 2, '.', '');
+//  $('#prezzo_' + id_riga).val(prezzo);
+//  
+//  //imposto i campi descrittivi (codice e descrizione) e nascondo i campi codice
+//  $('#codice_' + id_riga).hide();
+//  $('#descrizione_' + id_riga).hide();
+//  $('#view_codice_' + id_riga).html(codice_articolo_selezionato);
+//  $('#view_descrizione_' + id_riga).html(descrizione);
+//  
+//  //modifico l'icona a inizio riga per consentire il reset della stessa
+//  $('#ricerca_riga_' + id_riga).hide();
+//  $('#reset_riga_' + id_riga).show();
+  
+}
+
+
+//funzione per aprire il popup di visualizzazione della disponibilità dell'articolo
+function popupDisponibilita(articolo_selezionato){
+      
+  disponibile=articolo_selezionato.disponibile * 1;
+  disponibile_da=articolo_selezionato.disponibile_da;
+  
   //se l'articolo non è disponibile mostro il popup di segnalazione  
-  if(disponibile != 1){  
-    var msg="";
-    msg = "L'articolo momentaneamente non \u00E8 disponibile a magazzino.";
-		if(disponibile_da !== "") msg += "\nL'articolo sar\u00E1 nuovamente disponibile dal " + disponibile_da + ".";
+  if(disponibile != 1){
     
-    alert(msg);
-    //$("#popupSegnalazioneContent").html(msg);
-    //$("#popupSegnalazione").popup("open", "pop");
+    var msg="";
+    msg = "L'articolo momentaneamente non &egrave; disponibile a magazzino.";
+		if(disponibile_da !== "") msg += "<br/>L'articolo sar&agrave; nuovamente disponibile dal <b>" + disponibile_da + "</b>.";
+    
+    //salvo il contenuto dell'articolo in un campo input nascosto
+    var articolo_json = JSON.stringify(articolo_selezionato);
+    $('#articolo_json').val(articolo_json);
+    
+    //mostro il popup
+    $("#popupDisponibilitaContent").html(msg);
+    setTimeout( function(){ $( '#popupDisponibilita' ).popup("open", "pop"); }, 100 );
+    
+    
+  }else{
+    
+    popupPromozioni(articolo_selezionato);
+     
   }
   
+}
+
+
+//funzione per aprire il popup di visualizzazione di eventuali promozioni
+function popupPromozioni(articolo_selezionato, tipo){
   
+  //chiudo il popup di ricerca articoli
+  if(tipo === 'popup'){
+    $("#popupDisponibilita").popup("close", "pop");
+  }
   
-  //STEP 2
+  //campi per il calcolo delle scontistiche
+  box_promozioni = tipo_sconto = "";
+  qta_min = 0;//imposto di default la qta minima articoli a 0
+  sconto_max = articolo_selezionato.sconto_max * 1;			
+  qta1 = articolo_selezionato.qta1 * 1;
+  sconto_qta1 = articolo_selezionato.sconto_qta1 * 1;
+  qta2 = articolo_selezionato.qta2 * 1;
+  sconto_qta2 = articolo_selezionato.sconto_qta2 * 1;
+  qta3 = articolo_selezionato.qta3 * 1;
+  sconto_qta3 = articolo_selezionato.sconto_qta3 * 1;  
+
   //se per l'articolo è disponibile una promo mostro il popup di selezione
-  var box_promozioni = "";
-  var tipo_sconto = "";
-  var sconto_max = 0;
-  var qta_min = 0;
   if(qta1>0){
   
     var string_qtal = "Nessuno sconto presente";
     if(sconto_max !== 0)
       string_qtal = "Sconto Max " + sconto_max + " %";
       
-    box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qtal\" onClick=\"selezionaPromoQta('', " + sconto_max + "); ricalcolaTotaleRiga();\" CHECKED >&nbsp;Quantit&agrave; Libera - " + string_qtal;
-    box_promozioni += "<br/>";
-    box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qta1\" onClick=\"selezionaPromoQta(" + qta1 + ", " + sconto_qta1 + "); ricalcolaTotaleRiga();\" >&nbsp;Promo " + qta1 + " PZ - Sconto Max " + sconto_qta1 + " %";
+    box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"selezionaPromoQta('', " + sconto_max + "); ricalcolaTotaleRiga();\" >Quantit&agrave; Libera - " + string_qtal + "</a></li>";
+    box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"selezionaPromoQta(" + qta1 + ", " + sconto_qta1 + "); ricalcolaTotaleRiga();\" >Promo " + qta1 + " PZ - Sconto Max " + sconto_qta1 + " %</a></li>";
     
     if(qta2>0){
-      box_promozioni += "<br/>";
-      box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qta2\" onClick=\"selezionaPromoQta(" + qta2 + ", " + sconto_qta2 + "); ricalcolaTotaleRiga();\" >&nbsp;Promo " + qta2 + " PZ - Sconto Max " + sconto_qta2 + " %";
+      box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"selezionaPromoQta(" + qta2 + ", " + sconto_qta2 + "); ricalcolaTotaleRiga();\" >Promo " + qta2 + " PZ - Sconto Max " + sconto_qta2 + " %</a></li>";
     }
     
     if(qta3>0){
-      box_promozioni += "<br/>";
-      box_promozioni += "<input type=\"radio\" name=\"promo_qta\" id=\"check_qta3\" onClick=\"selezionaPromoQta(" + qta3 + ", " + sconto_qta3 + "); ricalcolaTotaleRiga();\" >&nbsp;Promo " + qta3 + " PZ - Sconto Max " + sconto_qta3 + " %";
+      box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"selezionaPromoQta(" + qta3 + ", " + sconto_qta3 + "); ricalcolaTotaleRiga();\" >&nbsp;Promo " + qta3 + " PZ - Sconto Max " + sconto_qta3 + " %</a></li>";
     }
     
     tipo_sconto = "PQ";//promo qta
     
   }else if(sconto_max !== 0){//sconto massimo impostato
     
-    box_promozioni += "Lo sconto massimo applicabile per l'articolo &egrave; " + sconto_max + "%.";    
+    box_promozioni += "<li><a href=\"javascript:void(0);\" >Lo sconto massimo applicabile per l'articolo &egrave; " + sconto_max + " %</a></li>";    
     qta_min=0;
     tipo_sconto="PF";//promo fissa
     
@@ -708,99 +765,116 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     tipo_sconto = "PF";//promo fissa
     
   }
-  alert(box_promozioni);
   
-  
-  
-  //STEP 3
-  //se l'articolo è a taglia / colore mostro il popup di selezione
-  var selezione_taglia_colore = "";
-  if(taglie !== "" || colori !== ""){
+  //verifico se mostrare il box promozioni o meno
+  if(box_promozioni !== ""){
     
-    //resetto l'attuale select, recupero le taglie ed imposto il campo del form
-    if(taglie !== ""){
-      
-      $('#taglia').empty();
-      $('#taglia').append('<option value=""></option>');
-      selezione_taglia_colore += "T";
-      
-      var elenco_taglie = taglie.split(";");
-      $.each( elenco_taglie, function( id, taglia ){
-        if(taglia !== ""){
-          var dati_taglia = taglia.split(",");
-          $('#taglia').append($('<option>', { 
-            value: dati_taglia[0] + '|' + dati_taglia[1],
-            text : dati_taglia[1] 
-          }));
-        }
-      });
-      
-      $('#taglia').show();//mostro la select
-      $("#taglia").val('');//imposto la selezione di default
-    }else{
-      $('#taglia').hide();
-    }
+    //salvo il contenuto dell'articolo in un campo input nascosto
+    var articolo_json = JSON.stringify(articolo_selezionato);
+    $('#articolo_json').val(articolo_json);
     
-    //recupero i colori ed imposto il campo del form
-    if(colori !== ""){
-                 
-      $('#colore').empty();
-      $('#colore').append('<option value=""></option>');
-      selezione_taglia_colore += "C";
-      
-      var elenco_colori = colori.split(";");
-      $.each( elenco_colori, function( id, colore ){
-        if(colore !== ""){
-          var dati_colore = colore.split(",");
-          $('#colore').append($('<option>', { 
-            value: dati_colore[0] + '|' + dati_colore[1],
-            text : dati_colore[1] 
-          }));
-        }
-      });
-      
-      $('#colore').show();
-      $("#colore").val('');//imposto la selezione di default
-    }else{
-      $('#colore').hide();
-    }
+    //compongo la lista e mostro il popup
+    var list = "<ul id=\"search_item\" data-role=\"listview\" >";
+    list += box_promozioni;
+    list += "</ul>";
     
-    //salvo nel campo nascosto del popup l'id della riga di riferimento ed il tipo di selezione T, C o TC
-    $('#id_riga_caratteristiche').val(id_riga);
-    $('#tipo_selezione_caratteristiche').val(selezione_taglia_colore);
+    $("#popupPromozioniContent").html(list);
+    setTimeout( function(){ $( '#popupPromozioni' ).popup("open", "pop"); }, 100 );
     
-    //apertura del popup
-    $("span.select-popup").html('&nbsp;');
-    setTimeout( function(){ $( '#popupSelezioneTaglieColori' ).popup("open", "pop"); }, 100 );
+  }else{
+    
+    popupTaglieColori(articolo_selezionato);
     
   }
+
+}
+
+//funzione per impostare i campi a seguito della selezione di una promo qta
+function selezionaPromoQta(qta, sconto){
+    //alert(qta+" - "+sconto);
+    //document.getElementById('quantita').readOnly=false;
+    document.getElementById('quantita').value=document.getElementById('min-qta').value=qta;
+    document.getElementById('omaggio').checked=false;
+    
+    if(document.getElementById('check_qtal').checked==true){
+        document.getElementById('max-sconto').value=sconto;
+        document.getElementById('sconto').value="";
+    }else{
+        document.getElementById('max-sconto').value=document.getElementById('sconto').value=sconto;
+    }
+    
+}
+
+
+//funzione per aprire il popup di selezione taglie e colori
+function popupTaglieColori(articolo_selezionato, tipo){
   
-  //compilo i campi della riga
-  $('#codice_' + id_riga).val(codice_articolo_selezionato);
-  $('#descrizione_' + id_riga).val(descrizione);
-  $('#taglia_' + id_riga).val('');
-  $('#colore_' + id_riga).val('');
-  
-  //campi relativi alle scontistiche
-  $('#min-qta_' + id_riga).val(qta_min);
-  $('#max-sconto_' + id_riga).val(sconto_max);
-  $('#tipo-sconto_' + id_riga).val(tipo_sconto);
-  
-  //riformatto il prezzo
-  prezzo = number_format(prezzo_listino, 2, '.', '');
-  $('#prezzo_' + id_riga).val(prezzo);
-  
-  //imposto i campi descrittivi (codice e descrizione) e nascondo i campi codice
-  $('#codice_' + id_riga).hide();
-  $('#descrizione_' + id_riga).hide();
-  $('#view_codice_' + id_riga).html(codice_articolo_selezionato);
-  $('#view_descrizione_' + id_riga).html(descrizione);
-  
-  //modifico l'icona a inizio riga per consentire il reset della stessa
-  $('#ricerca_riga_' + id_riga).hide();
-  $('#reset_riga_' + id_riga).show();
+  //  //STEP 3
+//  //se l'articolo è a taglia / colore mostro il popup di selezione
+//  var selezione_taglia_colore = "";
+//  if(taglie !== "" || colori !== ""){
+//    
+//    //resetto l'attuale select, recupero le taglie ed imposto il campo del form
+//    if(taglie !== ""){
+//      
+//      $('#taglia').empty();
+//      $('#taglia').append('<option value=""></option>');
+//      selezione_taglia_colore += "T";
+//      
+//      var elenco_taglie = taglie.split(";");
+//      $.each( elenco_taglie, function( id, taglia ){
+//        if(taglia !== ""){
+//          var dati_taglia = taglia.split(",");
+//          $('#taglia').append($('<option>', { 
+//            value: dati_taglia[0] + '|' + dati_taglia[1],
+//            text : dati_taglia[1] 
+//          }));
+//        }
+//      });
+//      
+//      $('#taglia').show();//mostro la select
+//      $("#taglia").val('');//imposto la selezione di default
+//    }else{
+//      $('#taglia').hide();
+//    }
+//    
+//    //recupero i colori ed imposto il campo del form
+//    if(colori !== ""){
+//                 
+//      $('#colore').empty();
+//      $('#colore').append('<option value=""></option>');
+//      selezione_taglia_colore += "C";
+//      
+//      var elenco_colori = colori.split(";");
+//      $.each( elenco_colori, function( id, colore ){
+//        if(colore !== ""){
+//          var dati_colore = colore.split(",");
+//          $('#colore').append($('<option>', { 
+//            value: dati_colore[0] + '|' + dati_colore[1],
+//            text : dati_colore[1] 
+//          }));
+//        }
+//      });
+//      
+//      $('#colore').show();
+//      $("#colore").val('');//imposto la selezione di default
+//    }else{
+//      $('#colore').hide();
+//    }
+//    
+//    //salvo nel campo nascosto del popup l'id della riga di riferimento ed il tipo di selezione T, C o TC
+//    $('#id_riga_caratteristiche').val(id_riga);
+//    $('#tipo_selezione_caratteristiche').val(selezione_taglia_colore);
+//    
+//    //apertura del popup
+//    $("span.select-popup").html('&nbsp;');
+//    setTimeout( function(){ $( '#popupSelezioneTaglieColori' ).popup("open", "pop"); }, 100 );
+//    
+//  }
+//
   
 }
+
 
 //funzione per resettare la riga articolo creata
 function resetRigaArticolo(id_riga){
@@ -823,6 +897,7 @@ function resetRigaArticolo(id_riga){
   $('#reset_riga_' + id_riga).hide();  
   
 }
+
 
 //funzione per impostare le caratteristiche selezionate di taglia e colore nella riga articolo
 function impostaCaratteristicheArticolo(){
@@ -862,6 +937,7 @@ function impostaCaratteristicheArticolo(){
   
 }
 
+
 //funzione per ricalcolare i totali di riga e di ordine
 function ricalcolaTotali(id_riga){
   
@@ -872,6 +948,7 @@ function ricalcolaTotali(id_riga){
   ricalcolaTotaliOrdine();
   
 }
+
 
 //funzione per ricalcolare i totali di riga
 function ricalcolaTotaliRiga(id_riga){

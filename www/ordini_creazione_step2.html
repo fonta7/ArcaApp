@@ -116,9 +116,36 @@
 						
 					</div>
 				</div>
+				
+				
+				<!-- popup segnalazione disponibilità -->
+				<div data-role="popup" id="popupDisponibilita" data-dismissible="false" >
+					<a href="javascript:void(0);" onClick="popupPromozioni( JSON.parse($('#articolo_json').val()), 'popup' )" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+					<div data-role="header" style="background-color: #ee0000;" >
+						<h1 class='nd-title'>ARTICOLO NON DISPONIBILE</h1>
+					</div>					
+					<div data-role="content">
+						<span id="popupDisponibilitaContent" ></span>
+						<input type="hidden" id="articolo_json" value="" >
+					</div>
+				</div>
+				
+				
+				<!-- popup promozioni -->
+				<div data-role="popup" id="popupPromozioni" data-dismissible="false" >
+					<a href="javascript:void(0);" onClick="popupTaglieColori( JSON.parse($('#articolo_json').val()), 'popup' )" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+					<div data-role="header" >
+						<h1 class='nd-title'>PROMOZIONI DISPONIBILI</h1>
+					</div>					
+					<div data-role="content">
+						<span id="popupPromozioniContent" ></span>
+						<input type="hidden" id="articolo_json" value="" >
+					</div>
+				</div>
+				
 
 				<!-- popup selezione taglie colori -->
-				<div data-role="popup" id="popupSelezioneTaglieColori" >
+				<div data-role="popup" id="popupTaglieColori" >
 					<!-- <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a> -->
 					<div data-role="header">
 						<h1 class='nd-title'>SELEZIONE TAGLIA / COLORE</h1>
