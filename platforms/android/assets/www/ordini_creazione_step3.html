@@ -20,11 +20,21 @@
 		<!-- include slide menu -->
 		<nd2-include data-src="menu.left.html"></nd2-include>
 		
+		
 		<!-- header -->
 		<div data-role="header" data-position="fixed">
+			
+			<!-- parte di sinistra -->
 			<a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
 			<h1 class="wow fadeIn" data-wow-delay='0.4s'>Completa l'Ordine</h1>
+			
+			<!-- parte di destra -->
+			<a href="javascript:void(0);" class="confirm-btn-header-right" onClick="creaOrdine_PagamentoSpedizione();" ></a>
+			
 		</div>
+		
+		<!-- footer -->
+		
 		
 		<!-- tabs -->
 		<ul data-role="nd2tabs" data-swipe="true" >
@@ -32,24 +42,7 @@
 			<li data-tab="indirizzo-spedizione">Indirizzo</li>
 			<li data-tab="note">Note</li>
 		</ul>
-		
-		<!-- footer -->
-		<div data-role="footer" data-position="fixed">
 
-			<div class="row center-xs">
-				<div class="col-xs-6">
-					<div class="box">
-						<!--<a href="ordini_creazione_step2.html" class="ui-btn ui-mini nd2-btn-icon-block"><i class='zmdi zmdi-menu'></i> torna alle righe ordine</a>-->
-					</div>
-				</div>
-				<div class="col-xs-6">
-					<div class="box">
-						<a href="javascript:void(0);" id="completa_ordine" class="ui-btn ui-mini nd2-btn-icon-block"><i class='zmdi zmdi-mail-send'></i> invia l'ordine</a>
-					</div>
-				</div>
-			</div>
-			
-		</div>
 
 		<!-- login content page -->
 		<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" >

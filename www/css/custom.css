@@ -48,7 +48,7 @@ body { opacity: 0; }
     background-color: transparent;
 }
 
-/* menu */
+/* MENU */
 .nd2-sidepanel-profile{
     padding: 2em 1em 2em 1em;
 }
@@ -58,6 +58,23 @@ body { opacity: 0; }
 }
 .menu-logout img{
     max-width:40px;
+}
+
+/* BUTTON MENU */
+.button_menu{
+
+}
+.button_menu .ui-btn.ui-btn-raised {
+    padding:20px;
+    font-size:1.3em;
+}
+.button_menu .ui-btn.ui-btn-raised i.zmdi{
+    float:left;
+    font-size:1.2em;
+}
+.button_menu .ui-btn.ui-btn-raised.clr-green {
+    background-color: #039B42;
+    color: rgba(255,255,255,0.85);
 }
 
 /* ajax loader message */

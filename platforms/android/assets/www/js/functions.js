@@ -8,16 +8,37 @@ var NUMERO_RIGHE_ORDINE = 20;
 //////////////////////////////////////////////////
 // LOGIN e LOGOUT
 //////////////////////////////////////////////////
+$("#loginPage").on("pagecreate", function(){
+  
+  if(localStorage.getItem('credenziali') !== null){
+      
+    var credenziali = JSON.parse(localStorage.getItem('credenziali'));
+    if(credenziali.expiration_date >= today()){
+      
+      document.getElementById('username').value = credenziali.username;
+      document.getElementById('password').value = credenziali.password;
+      
+    }else{
+      
+      document.getElementById('username').value = "";
+      document.getElementById('password').value = "";
+      
+    }
+    
+  }
+  
+});
 
 //funzione di login
-$( "#login_form_submit" ).bind( "click", function(event, ui) {
+$( "#login_form_submit" ).bind( "click", function(){
   
   //resetto il msg response
   $('.response_msg').html("<span class=\"ajax_loader_msg\" >login in corso</span>");
   
   //recupero username e password
   var username = document.getElementById('username').value;
-  var password = MD5(document.getElementById('password').value);
+  var password = document.getElementById('password').value;
+  var md5_password = MD5(password);
   
   //effettuo la chiamata ajax ad arcadistribution.com
   $.ajax({
@@ -26,7 +47,7 @@ $( "#login_form_submit" ).bind( "click", function(event, ui) {
     crossDomain: true,
     data: {
       username: username,
-      password: password
+      password: md5_password
     },
     success: function(response){
       
@@ -54,6 +75,40 @@ $( "#login_form_submit" ).bind( "click", function(event, ui) {
           
           //mostro il messaggio di login
           $('.response_msg').html("<span class='clr-green' >Login effettuato correttamente</span>");
+          
+          
+          //memorizzazione credenziali di accesso
+          if(document.getElementById('save_credential').checked === true){
+            
+            //recupero dallo storage il file con le credenziali salvate
+            var aggiorna_credenziali = true;
+            if(localStorage.getItem('credenziali') !== null){
+                
+              var credenziali = JSON.parse(localStorage.getItem('credenziali'));       
+              if(credenziali.expiration_date < today()){
+                aggiorna_credenziali = false;
+              }
+                
+            }
+            
+            //se non sono mai state salvate le credenziali o se la data di scadenza è passata
+            if(aggiorna_credenziali === true){
+              var credenziali_nuove = {};
+              credenziali_nuove.username = username;
+              credenziali_nuove.password = password;
+              
+              var date = new Date();
+              date.setDate(date.getDate() + 7);             
+              var expiration_date = date.getFullYear() + '' + (date.getMonth()+1) + '' + date.getDate();             
+              credenziali_nuove.expiration_date = expiration_date;
+              
+              localStorage.setItem('credenziali', JSON.stringify(credenziali_nuove));
+            }
+            
+          }else{
+            localStorage.removeItem('credenziali');
+          }
+          
           
           //reindirizzo all'homepage
           setTimeout(function(){
@@ -282,8 +337,28 @@ function importModalitaPagamento(codice_agente, token){
 //////////////////////////////////////////////////
 // ORDINI STEP1 - RICERCA CLIENTE
 //////////////////////////////////////////////////
-$( document ).on( "pageinit", "#ordiniCreazioneStep1Page", function() {
+$( document ).on( "pagecreate", "#ordiniCreazioneStep1Page", function() {
   
+  //carico l'elenco completo dei clienti
+  var clienti = JSON.parse(localStorage.getItem('clienti'));
+
+  //ciclo l'elenco dei clienti
+  html = "";
+  $.each( clienti, function( id, cliente ){
+    html += "<li>";
+      html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
+        html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
+      html += "</a>";
+    html += "</li>";
+  });
+
+  $('#search_customer').html( html );
+  $('#search_customer').listview( "refresh" );
+  $('#search_customer').trigger( "updatelayout");
+  
+  
+  
+  //istanzio il filtro
   $( "#search_customer" ).on( "filterablebeforefilter", function ( e, data ) {
     var $ul = $( this ),
         $input = $( data.input ),
@@ -302,7 +377,7 @@ $( document ).on( "pageinit", "#ordiniCreazioneStep1Page", function() {
 
       //ciclo l'elenco dei clienti
       html = "";
-      $.each( clienti, function( id_tco, cliente ){
+      $.each( clienti, function( id, cliente ){
         html += "<li>";
           html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
             html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
@@ -397,8 +472,12 @@ function creaRigheOrdine(id_riga) {
                 "<td>" +
                   //campi input
                   "<input type=\"text\" id=\"descrizione_" + id_riga + "\" class=\"ricerca_articolo\" value=\"\" data-clear-btn=\"false\" >" +
-                  "<input type=\"hidden\" id=\"taglia_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
-                  "<input type=\"hidden\" id=\"colore_" + id_riga + "\" value=\"\" data-clear-btn=\"false\" >" +
+                  //campi input nascosti
+                  "<input type=\"hidden\" id=\"taglia_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"colore_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"min-qta_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"max-sconto_" + id_riga + "\" value=\"\" >" +
+                  "<input type=\"hidden\" id=\"tipo-sconto_" + id_riga + "\" value=\"\" >" +
                   //campi visualizzazione
                   "<span id=\"view_descrizione_" + id_riga + "\" class=\"descrizione_articolo\" ></span>" +
                   "<span id=\"view_taglia_" + id_riga + "\" ></span>" +
@@ -408,7 +487,7 @@ function creaRigheOrdine(id_riga) {
                   "<input type=\"text\" name=\"prezzo\" id=\"prezzo_" + id_riga + "\" value=\"\" style=\"text-align:right\" READONLY >" +
                 "</td>" +
                 "<td>" +
-                  "<input type=\"text\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right\" onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
+                  "<input type=\"text\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right\" onChange=\"ricalcolaTotali(" + id_riga + ");\" onFocus=\"verificaArticoloSelezionato(" + id_riga + ");\" >" +
                 "</td>" +
                 "<td class=\"campo_omaggio\">" +
                   "<input type=\"checkbox\" id=\"omaggio_" + id_riga + "\" value=\"1\"  onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
@@ -423,6 +502,17 @@ function creaRigheOrdine(id_riga) {
   
   $('#righe-ordine tbody').append(riga);
 
+}
+
+//funzione attivata all'onfocus sul campo qta
+//per verificare se l'articolo è già stato caricato o va effettuata la ricerca
+function verificaArticoloSelezionato(id_riga){
+  
+  //se è stato inserito il codice ma non è stato ancora valorizzato il prezzo verifico se il campo descrizione è già stato valorizzato
+  if(document.getElementById('codice_' + id_riga).value !== "" && document.getElementById('prezzo_' + id_riga).value === ""){
+    ricercaArticolo(id_riga);
+  }
+  
 }
 
 //funzione per effettuare la ricerca dell'articolo
@@ -440,6 +530,7 @@ function ricercaArticolo(id_riga){
   var risultati_ricerca = [];
   $.each( articoli, function( codice_articolo, articolo ){
     var descrizione_articolo = articolo.descrizione;
+    var confezione_articolo = articolo.confezione;
     
     //aggiungo un carattere fittizio davanti a codice articolo e descrizione
     codice_articolo_confronto = "#" + codice_articolo;
@@ -448,13 +539,13 @@ function ricercaArticolo(id_riga){
     //se è stato inserito il codice articolo effettuo la ricerca solo per codice (dall'inizio della stringa)
     if(codice_ricerca !== "" && codice_articolo_confronto.toLowerCase().indexOf( codice_ricerca.toLowerCase() ) === 1){
       
-      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo);
+      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo);
       numero_risultati_ricerca++;
     
     }//altrimenti effettuo la ricerca per descrizione (all'interno della stringa)
     else if(codice_ricerca === "" && descrizione_ricerca !== "" && descrizione_articolo_confronto.toLowerCase().indexOf( descrizione_ricerca.toLowerCase() ) > 0){
       
-      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo);
+      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo);
       numero_risultati_ricerca++;
       
     }
@@ -484,7 +575,13 @@ function ricercaArticolo(id_riga){
       var dati_articolo = articolo.split("|");
       list += "<li>";
         list += "<a href=\"javascript:void(0);\" onClick=\"inserisciRigaArticolo(" + id_riga + ", '" + dati_articolo[0] + "', 'popup');\" >";
-          list += dati_articolo[0] + " - " + dati_articolo[1];
+          
+          descrizione_articolo = dati_articolo[1];
+          if(dati_articolo[1].length>50){
+            descrizione_articolo = dati_articolo[1].substring(1, 47) + "...";
+          }        
+          list += dati_articolo[0] + " | " + descrizione_articolo + " | " + dati_articolo[2];
+          
         list += "</a>";
       list += "</li>";
     });
@@ -508,46 +605,207 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     $("#popupRicercaArticolo").popup("close", "pop");
   }
   
-  //recupero tutte le info per l'articolo ed imposto la riga
-  var descrizione="";
-  var confezione="";
-  var numero_max="";
-  var taglie="";
-  var colori="";
-  var disponibile="";
-  var disponibile_da="";
-  var prezzo_listino="";
-  var prezzo_scontato="";
-  
-  
+  var articolo_selezionato = {};
   var articoli = JSON.parse(localStorage.getItem('articoli'));
   $.each( articoli, function( codice_articolo, articolo ){
     
     if(codice_articolo === codice_articolo_selezionato){
       
-      //recupero le variabili dell'articolo
-      codice_articolo=articolo.codice;
-      descrizione=articolo.descrizione;
-      confezione=articolo.confezione;
-      numero_max=articolo.numero_max;
-      taglie=articolo.taglie;
-      colori=articolo.colori;
-      disponibile=articolo.disponibile;
-      disponibile_da=articolo.disponibile_da;
-      prezzo_listino=articolo.prezzo_listino;
-      prezzo_scontato=articolo.prezzo_scontato;
+      //imposto l'articolo selezionato
+      articolo_selezionato = articolo;
       
       //esco dal ciclo
       return false;
-      
-      
+            
     }
 
-  });
+  });  
+  //salvo in console i dati dell'articolo
+  console.log(articolo_selezionato);
+  
+  
+  //compilo i campi della riga
+  $('#codice_' + id_riga).val( articolo_selezionato.codice_articolo );
+  $('#descrizione_' + id_riga).val( articolo_selezionato.descrizione );
+  $('#taglia_' + id_riga).val('');
+  $('#colore_' + id_riga).val('');
+  
+  //campi relativi alle scontistiche
+  $('#min-qta_' + id_riga).val('');
+  $('#max-sconto_' + id_riga).val('');
+  $('#tipo-sconto_' + id_riga).val('');
+  
+  //riformatto il prezzo
+  prezzo = number_format( articolo_selezionato.prezzo_listino, 2, '.', '');
+  $('#prezzo_' + id_riga).val(prezzo);
+  
+  //imposto i campi descrittivi (codice e descrizione) e nascondo i campi codice
+  $('#codice_' + id_riga).hide();
+  $('#descrizione_' + id_riga).hide();
+  $('#view_codice_' + id_riga).html( articolo_selezionato.codice_articolo );
+  $('#view_descrizione_' + id_riga).html( articolo_selezionato.descrizione );
+  
+  //modifico l'icona a inizio riga per consentire il reset della stessa
+  $('#ricerca_riga_' + id_riga).hide();
+  $('#reset_riga_' + id_riga).show();  
+  
+  
+  //richiamo il popup del controllo disponibilità
+  popupDisponibilita(id_riga, articolo_selezionato);
+  
+}
+
+
+//funzione per aprire il popup di visualizzazione della disponibilità dell'articolo
+function popupDisponibilita(id_riga, articolo_selezionato){
+      
+  disponibile=articolo_selezionato.disponibile * 1;
+  disponibile_da=articolo_selezionato.disponibile_da;
+  
+  //se l'articolo non è disponibile mostro il popup di segnalazione  
+  if(disponibile != 1){
     
+    var msg="";
+    msg = "L'articolo momentaneamente non &egrave; disponibile a magazzino.";
+		if(disponibile_da !== "") msg += "<br/>L'articolo sar&agrave; nuovamente disponibile dal <b>" + disponibile_da + "</b>.";
+    
+    //salvo l'id_riga ed il contenuto dell'articolo in un campo input nascosto
+    $('#id_riga_disponibilita').val(id_riga);
+    var articolo_json = JSON.stringify(articolo_selezionato);
+    $('#articolo_json_disponibilita').val(articolo_json);
+    
+    //mostro il popup
+    $("#popupDisponibilitaContent").html(msg);
+    setTimeout( function(){ $( '#popupDisponibilita' ).popup("open", "pop"); }, 100 );
+    
+    
+  }else{
+    
+    popupPromozioni(id_riga, articolo_selezionato);
+     
+  }
+  
+}
 
-  //se l'articolo non è disponibile mostro il popup di segnalazione
 
+//funzione per aprire il popup di visualizzazione di eventuali promozioni
+function popupPromozioni(id_riga, articolo_selezionato, tipo){
+  
+  //chiudo il popup di disponibilita
+  if(tipo === 'popup'){
+    $("#popupDisponibilita").popup("close", "pop");
+  }
+  
+  //campi per il calcolo delle scontistiche
+  box_promozioni = tipo_sconto = "";
+  qta_min = 0;//imposto di default la qta minima articoli a 0
+  sconto_max = articolo_selezionato.sconto_max * 1;			
+  qta1 = articolo_selezionato.qta1 * 1;
+  sconto_qta1 = articolo_selezionato.sconto_qta1 * 1;
+  qta2 = articolo_selezionato.qta2 * 1;
+  sconto_qta2 = articolo_selezionato.sconto_qta2 * 1;
+  qta3 = articolo_selezionato.qta3 * 1;
+  sconto_qta3 = articolo_selezionato.sconto_qta3 * 1;  
+
+  //se per l'articolo è disponibile una promo mostro il popup di selezione
+  if(qta1>0){
+  
+    var string_qtal = "Nessuno sconto presente";
+    if(sconto_max !== 0)
+      string_qtal = "Sconto Max " + sconto_max + " %";
+      
+    box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"impostaPromoQta("+id_riga+", '', "+sconto_max+", 'promo_qta_libera');\" >Quantit&agrave; Libera - " + string_qtal + "</a></li>";
+    box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"impostaPromoQta("+id_riga+", "+qta1+", "+sconto_qta1+", 'promo_qta_1');\" >Promo " + qta1 + " PZ - Sconto Max " + sconto_qta1 + " %</a></li>";
+    
+    if(qta2>0){
+      box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"impostaPromoQta("+id_riga+", "+qta2+", "+sconto_qta2+", 'promo_qta_2');\" >Promo " + qta2 + " PZ - Sconto Max " + sconto_qta2 + " %</a></li>";
+    }
+    
+    if(qta3>0){
+      box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"impostaPromoQta("+id_riga+", "+qta3+", "+sconto_qta3+", 'promo_qta_3');\" >Promo " + qta3 + " PZ - Sconto Max " + sconto_qta3 + " %</a></li>";
+    }
+    
+    tipo_sconto = "PQ";//promo qta
+    
+  }else if(sconto_max !== 0){//sconto massimo impostato
+    
+    box_promozioni += "<li><a href=\"javascript:void(0);\" >Lo sconto massimo applicabile per l'articolo &egrave; " + sconto_max + " %</a></li>";    
+    qta_min=0;
+    tipo_sconto="PF";//promo fissa
+    
+  }else{//nessuna promo o sconto arriva per l'articolo
+    
+    qta_min = 0;
+    sconto_max = 0;
+    tipo_sconto = "PF";//promo fissa
+    
+  }
+  
+  //imposto i campi nascosti
+  $('#min-qta_' + id_riga).val(qta_min);
+  $('#max-sconto_' + id_riga).val(sconto_max);
+  $('#tipo-sconto_' + id_riga).val(tipo_sconto);
+  
+  //verifico se mostrare il box promozioni o meno
+  if(box_promozioni !== ""){
+    
+    //salvo il contenuto dell'articolo in un campo input nascosto
+    var articolo_json = JSON.stringify(articolo_selezionato);
+    $('#articolo_json_promozioni').val(articolo_json);
+    
+    //compongo la lista e mostro il popup
+    var list = "<ul id=\"search_item\" data-role=\"listview\" >";
+    list += box_promozioni;
+    list += "</ul>";
+    
+    $("#popupPromozioniContent").html(list);
+    setTimeout( function(){ $( '#popupPromozioni' ).popup("open", "pop"); }, 100 );
+    
+  }else{
+
+    popupTaglieColori(id_riga, articolo_selezionato);
+    
+  }
+
+}
+
+//funzione per impostare i campi a seguito della selezione di una promo qta
+function impostaPromoQta(id_riga, qta, sconto, tipo_promo){
+  
+  //imposto i campi per la gestione delle promozioni
+  $('#qta_' + id_riga).val(qta);
+  $('#min-qta_' + id_riga).val(qta);
+  $('#max-sconto_' + id_riga).val(sconto);
+  
+  //rimuovo il check dall'omaggio
+  $('#omaggio_' + id_riga).prop('checked', false); 
+  
+  if(tipo_promo == 'promo_qta_libera'){    
+    $('#sconto_' + id_riga).val("");
+  }else{
+    $('#sconto_' + id_riga).val(sconto);
+  }
+  
+  //effettuo il ricalcolo dei totali
+  ricalcolaTotali(id_riga);
+  
+  //rimando al popupTaglieColori
+  popupTaglieColori(id_riga, JSON.parse($('#articolo_json_promozioni').val()), 'popup');
+  
+}
+
+
+//funzione per aprire il popup di selezione taglie e colori
+function popupTaglieColori(id_riga, articolo_selezionato, tipo){
+  
+  //chiudo il popup delle promozioni
+  if(tipo === 'popup'){
+    $("#popupPromozioni").popup("close", "pop");
+  }
+  
+  //recupero taglie e colori
+  taglie=articolo_selezionato.taglie;
+  colori=articolo_selezionato.colori;
   
   //se l'articolo è a taglia / colore mostro il popup di selezione
   var selezione_taglia_colore = "";
@@ -604,59 +862,18 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
     //salvo nel campo nascosto del popup l'id della riga di riferimento ed il tipo di selezione T, C o TC
     $('#id_riga_caratteristiche').val(id_riga);
     $('#tipo_selezione_caratteristiche').val(selezione_taglia_colore);
-    
+
     //apertura del popup
     $("span.select-popup").html('&nbsp;');
-    setTimeout( function(){ $( '#popupSelezioneTaglieColori' ).popup("open", "pop"); }, 100 );
+    setTimeout( function(){ $( '#popupTaglieColori' ).popup("open", "pop"); }, 100 );
     
   }
   
-  //compilo i campi della riga
-  $('#codice_' + id_riga).val(codice_articolo_selezionato);
-  $('#descrizione_' + id_riga).val(descrizione);
-  $('#taglia_' + id_riga).val('');
-  $('#colore_' + id_riga).val('');
-  
-  //riformatto il prezzo
-  prezzo = number_format(prezzo_listino, 2, '.', '');
-  $('#prezzo_' + id_riga).val(prezzo);
-  
-  //imposto i campi descrittivi (codice e descrizione) e nascondo i campi codice
-  $('#codice_' + id_riga).hide();
-  $('#descrizione_' + id_riga).hide();
-  $('#view_codice_' + id_riga).html(codice_articolo_selezionato);
-  $('#view_descrizione_' + id_riga).html(descrizione);
-  
-  //modifico l'icona a inizio riga per consentire il reset della stessa
-  $('#ricerca_riga_' + id_riga).hide();
-  $('#reset_riga_' + id_riga).show();
-  
 }
 
-//funzione per resettare la riga articolo creata
-function resetRigaArticolo(id_riga){
-  
-  //svuoto tutti i campi
-  $('#codice_' + id_riga).val('');
-  $('#descrizione_' + id_riga).val('');
-  $('#taglia_' + id_riga).val('');
-  $('#colore_' + id_riga).val('');
-  $('#prezzo_' + id_riga).val('');
-  $('#view_codice_' + id_riga).html('');
-  $('#view_descrizione_' + id_riga).html('');
-  $('#view_taglia_' + id_riga).html('');
-  $('#view_colore_' + id_riga).html('');
-  
-  //reimposto la corretta visualizzazione di campi e icone
-  $('#codice_' + id_riga).show();
-  $('#descrizione_' + id_riga).show();
-  $('#ricerca_riga_' + id_riga).show();
-  $('#reset_riga_' + id_riga).hide();  
-  
-}
 
 //funzione per impostare le caratteristiche selezionate di taglia e colore nella riga articolo
-function impostaCaratteristicheArticolo(){
+function impostaTagliaColore(){
   
   //recupero l'id della riga e le caratteristiche impostate
   var id_riga=$('#id_riga_caratteristiche').val();
@@ -689,20 +906,86 @@ function impostaCaratteristicheArticolo(){
   }
   
   //chiudo il popup
-  $("#popupSelezioneTaglieColori").popup("close", "pop");
+  $("#popupTaglieColori").popup("close", "pop");
   
 }
+
+
+//funzione per resettare la riga articolo creata
+function resetRigaArticolo(id_riga){
+  
+  //svuoto tutti i campi
+  $('#codice_' + id_riga).val('');
+  $('#descrizione_' + id_riga).val('');
+  $('#taglia_' + id_riga).val('');
+  $('#colore_' + id_riga).val('');
+  $('#prezzo_' + id_riga).val('');
+  $('#view_codice_' + id_riga).html('');
+  $('#view_descrizione_' + id_riga).html('');
+  $('#view_taglia_' + id_riga).html('');
+  $('#view_colore_' + id_riga).html('');
+  
+  //reimposto la corretta visualizzazione di campi e icone
+  $('#codice_' + id_riga).show();
+  $('#descrizione_' + id_riga).show();
+  $('#ricerca_riga_' + id_riga).show();
+  $('#reset_riga_' + id_riga).hide();  
+  
+}
+
 
 //funzione per ricalcolare i totali di riga e di ordine
 function ricalcolaTotali(id_riga){
   
-  //recupero i dati necessari per il ricalcolo dei totali
+  //ricalcolo i totali di riga
+  ricalcolaTotaliRiga(id_riga);
+  
+  //ricalcolo i totali ordine
+  ricalcolaTotaliOrdine();
+  
+}
+
+
+//funzione per ricalcolare i totali di riga
+function ricalcolaTotaliRiga(id_riga){
+  
+  //recupero i dati necessari per la verifica ed il ricalcolo dei totali
   var prezzo = $('#prezzo_' + id_riga).val()*1;
   var qta = $('#qta_' + id_riga).val()*1;
   var sconto = $('#sconto_' + id_riga).val()*1;
   
   var omaggio = 0;
   if(document.getElementById('omaggio_' + id_riga).checked === true) omaggio = 1;
+  
+  
+  //verifico la correttezza dei dati
+  ////verifico che la quantita sia >= della quantita minima
+  ////alert(qta+"<"+qta_min);
+  //if(qta<qta_min){
+  //    alert('La quantit\u00E1 impostata \u00E8 inferiore al limite minimo di '+qta_min+' PZ.');
+  //    document.getElementById('quantita').value=qta_min;
+  //    check=false;
+  //}
+  //
+  ////verifico che lo sconto sia <= dello sconto massimo
+  //if(tipo_sconto=='PQ' && document.getElementById('check_qtal').checked=='false') {
+  //    
+  //    if(sconto>sconto_max){
+  //        alert('Lo sconto impostato supera il limite massimo imposto del '+sconto_max+'%.');
+  //        document.getElementById('sconto').value=sconto_max;
+  //        check=false;
+  //    }
+  //    
+  //}else{
+  //    
+  //    if(sconto>sconto_max && document.getElementById('omaggio').checked==false){
+  //        alert('Lo sconto impostato supera il limite massimo imposto del '+sconto_max+'%.');
+  //        document.getElementById('sconto').value=sconto_max;
+  //        check=false;
+  //    }
+  //    
+  //}
+  
   
   //ricalcolo i totali
   var totale_riga = 0;
@@ -720,6 +1003,42 @@ function ricalcolaTotali(id_riga){
   $('#totale_' + id_riga).val(totale_riga);
   
 }
+
+//funzione per ricalcolare i totali ordine
+function ricalcolaTotaliOrdine(){
+  
+  //ciclo le righe per trovare la prima senza codice articolo
+  totale_lordo = totale_netto = 0;
+  righe_counter = 0;
+  for (i = 0; i < NUMERO_RIGHE_ORDINE; i++) { 
+    
+    totale_riga_lordo = totale_riga_netto = 0;
+    if( $('#codice_' + i).val() !== ""){
+      
+      prezzo = $('#prezzo_' + i).val();
+      qta = $('#qta_' + i).val();
+
+      totale_riga_lordo = prezzo * qta;
+      totale_riga_netto = $('#totale_' + i).val() * 1;
+
+    }
+    
+    totale_lordo += totale_riga_lordo;    
+    totale_netto += totale_riga_netto;
+    
+  }
+
+  //riformatto i totali
+  totale_lordo = number_format(totale_lordo, 2, '.', '');
+  totale_netto = number_format(totale_netto, 2, '.', '');
+  
+  //mostro a video i totali
+  $('#totale_lordo').val(totale_lordo);
+  $('#totale_netto').val(totale_netto);
+  
+} 
+
+
 
 //funzione per aggiungere le righe impostate all'ordine
 function creaOrdine_AggiungiRighe(){
@@ -779,7 +1098,7 @@ function creaOrdine_AggiungiRighe(){
 
 //funzione per ricalcolare il totale riga
 function ricalcolaTotaleRiga(id_riga){
-  alert(id_riga);
+
   var prezzo = ($('#prezzo_' + i).val())*1;
   var qta = ($('#qta_' + i).val())*1;
   var sconto = ($('#sconto_' + i).val())*1;
@@ -856,7 +1175,6 @@ $( document ).on( "pageinit", "#ordiniCreazioneStep3Page", function() {
   $('#data_consegna').val(aaaa + '-' + mm + '-' + gg);
   
   
-  
   //visualizzo l'indirizzo di fatturazione
   var indirizzo_fatturazione = "";
   indirizzo_fatturazione+= ragione_sociale +"<br/>";
@@ -864,36 +1182,34 @@ $( document ).on( "pageinit", "#ordiniCreazioneStep3Page", function() {
   indirizzo_fatturazione+= cap + " " + citta + " (" + provincia + ")"; 
   $('#indirizzo_fatturazione').html(indirizzo_fatturazione);
   
-  
-  
-  //funzione per completare l'ordine con le informazioni aggiuntive
-  $( "#completa_ordine" ).bind( "click", function(){
-  
-    //aggiungo le info aggiuntive all'ordine
-    var ordine = JSON.parse(localStorage.getItem('ordine'));  
-    
-    ordine.modalita_pagamento = $('#modalita_pagamento').val();
-    ordine.data_consegna = $('#data_consegna').val();
-    ordine.spedizione_indirizzo = $('#spedizione_indirizzo').val();
-    ordine.spedizione_cap = $('#spedizione_cap').val();
-    ordine.spedizione_citta = $('#spedizione_citta').val();
-    ordine.spedizione_provincia = $('#spedizione_provincia').val();
-    ordine.note = $('#note').val();
-    
-    //mostro in console l'ordine aggiornato
-    console.log(ordine);
-    
-    //risalvo l'ordine in locale
-    var ordine_json = JSON.stringify(ordine);
-    localStorage.setItem('ordine', ordine_json);
-  
-    //reindirizzo allo step4
-    location.href="ordini_creazione_step4.html";
-    
-  });
-  
-  
+
 });
+
+//funzione per completare l'ordine con le informazioni aggiuntive
+function creaOrdine_PagamentoSpedizione(){
+  
+  //aggiungo le info aggiuntive all'ordine
+  var ordine = JSON.parse(localStorage.getItem('ordine'));  
+  
+  ordine.modalita_pagamento = $('#modalita_pagamento').val();
+  ordine.data_consegna = $('#data_consegna').val();
+  ordine.spedizione_indirizzo = $('#spedizione_indirizzo').val();
+  ordine.spedizione_cap = $('#spedizione_cap').val();
+  ordine.spedizione_citta = $('#spedizione_citta').val();
+  ordine.spedizione_provincia = $('#spedizione_provincia').val();
+  ordine.note = $('#note').val();
+  
+  //mostro in console l'ordine aggiornato
+  console.log(ordine);
+  
+  //risalvo l'ordine in locale
+  var ordine_json = JSON.stringify(ordine);
+  localStorage.setItem('ordine', ordine_json);
+
+  //reindirizzo allo step4
+  location.href="ordini_creazione_step4.html";
+  
+}
 
 
 
