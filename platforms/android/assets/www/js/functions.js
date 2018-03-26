@@ -2,7 +2,7 @@
 // VARIABILI
 //////////////////////////////////////////////////
 var API_PATH = "http://www.arcadistribution.com/tco/api/app/";
-var NUMERO_RIGHE_ORDINE = 20;
+var NUMERO_RIGHE_ORDINE = 30;
 
 
 //////////////////////////////////////////////////
@@ -117,7 +117,8 @@ $( "#login_form_submit" ).bind( "click", function(){
             if(import_data === true){
               location.href="import.html";
             }else{
-              location.href="home.html";
+              //location.href="home.html";
+              location.href="home_ordini.html";
             }
             
           }, 2000);
@@ -317,6 +318,9 @@ function importModalitaPagamento(codice_agente, token){
 
         //recupero via ajax gli articoli
         $.mobile.loading( "hide" );
+        
+        //effettuo il redirect dopo 1 secondo
+        setTimeout( function(){ location.href="home_ordini.html"; }, 1000 );
 
       }catch(err){
         $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>MODALIT&Agrave; DI PAGAMENTO ERRORE</h2></li>");
@@ -367,7 +371,7 @@ $( document ).on( "pagecreate", "#ordiniCreazioneStep1Page", function() {
         $ul.html( "" );
         
     //effettuo la ricerca dopo aver inserito almeno 3 caratteri
-    if ( value && value.length >= 3 ){
+    if ( (value && value.length >= 3) || value === "" ){
       
       $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
       $ul.listview( "refresh" );
@@ -430,6 +434,10 @@ function creaOrdine_AggiungiCliente(codice_cliente, ragione_sociale, codice_paga
 //////////////////////////////////////////////////
 $( document ).on("pagecreate", "#ordiniCreazioneStep2Page", function() {
   
+  //aggiungo codice e ragione sociale del cliente
+  var ordine = JSON.parse(localStorage.getItem('ordine'));
+  $("#cliente").html(ordine.cliente_ragionesociale + ' - ' + ordine.cliente_codice);
+  
   //funzione per creare le righe nella tabella
   for (i = 0; i < NUMERO_RIGHE_ORDINE; i++) { 
     creaRigheOrdine(i);
@@ -487,13 +495,13 @@ function creaRigheOrdine(id_riga) {
                   "<input type=\"text\" name=\"prezzo\" id=\"prezzo_" + id_riga + "\" value=\"\" style=\"text-align:right\" READONLY >" +
                 "</td>" +
                 "<td>" +
-                  "<input type=\"text\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right\" onChange=\"ricalcolaTotali(" + id_riga + ");\" onFocus=\"verificaArticoloSelezionato(" + id_riga + ");\" >" +
+                  "<input type=\"number\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right\" onChange=\"ricalcolaTotali(" + id_riga + ");\" onFocus=\"verificaArticoloSelezionato(" + id_riga + ");\" >" +
                 "</td>" +
                 "<td class=\"campo_omaggio\">" +
                   "<input type=\"checkbox\" id=\"omaggio_" + id_riga + "\" value=\"1\"  onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
                 "</td>" +
                 "<td class=\"campo_sconto\">" +
-                  "<input type=\"text\" id=\"sconto_" + id_riga + "\" value=\"\" style=\"text-align:right\"  onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
+                  "<input type=\"number\" id=\"sconto_" + id_riga + "\" value=\"\" style=\"text-align:right\"  onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
                 "</td>" +
                 "<td>" +
                   "<input type=\"text\" name=\"totale\" id=\"totale_" + id_riga + "\" value=\"\" style=\"text-align:right\" READONLY >" +
@@ -729,7 +737,7 @@ function popupPromozioni(id_riga, articolo_selezionato, tipo){
     
   }else if(sconto_max !== 0){//sconto massimo impostato
     
-    box_promozioni += "<li><a href=\"javascript:void(0);\" >Lo sconto massimo applicabile per l'articolo &egrave; " + sconto_max + " %</a></li>";    
+    box_promozioni += "<li><a href=\"javascript:void(0);\" onClick=\"$( '#popupPromozioni' ).popup('close', 'pop');\" >Lo sconto massimo applicabile per l'articolo &egrave; " + sconto_max + " %</a></li>";    
     qta_min=0;
     tipo_sconto="PF";//promo fissa
     
@@ -954,11 +962,29 @@ function ricalcolaTotaliRiga(id_riga){
   var qta = $('#qta_' + id_riga).val()*1;
   var sconto = $('#sconto_' + id_riga).val()*1;
   
+  var max_sconto = $('#max-sconto_' + id_riga).val();
+  var tipo_sconto = $('#tipo-sconto_' + id_riga).val();
+  
   var omaggio = 0;
   if(document.getElementById('omaggio_' + id_riga).checked === true) omaggio = 1;
   
-  
   //verifico la correttezza dei dati
+  var alert_msg = "";
+  if(tipo_sconto == 'PF'){
+    
+    if(sconto > max_sconto){
+      //mostro l'alert di segnalazione
+      if(max_sconto === 0) alert_msg = "Nessuna scontistica impostabile per l'articolo.";
+      else alert_msg = "Lo sconto impostato supera il limite massimo imposto del " + sconto_max + "%.";     
+      alert(alert_msg);
+      //imposto il nuovo sconto
+      $('#sconto_' + id_riga).val(sconto_max);
+      sconto = sconto_max;
+    }
+    
+  }
+  
+  
   ////verifico che la quantita sia >= della quantita minima
   ////alert(qta+"<"+qta_min);
   //if(qta<qta_min){
@@ -989,7 +1015,6 @@ function ricalcolaTotaliRiga(id_riga){
   
   //ricalcolo i totali
   var totale_riga = 0;
-  var totale_ordine = 0;
   if(omaggio === 1){
     totale_riga = 0;
     $('#sconto_' + id_riga).val("");
