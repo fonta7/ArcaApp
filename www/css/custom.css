@@ -152,6 +152,7 @@ body { opacity: 0; }
     
     /*inserire l'elenco degli id delle pagine da mostrare solo landscape*/
     #ordiniCreazioneStep2Page { display:none; }
+    #ordiniStorico { display:none; }
     
     #warning-message-portrait {
         text-align:center;

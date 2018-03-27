@@ -1384,16 +1384,32 @@ $( document ).on( "pagecreate", "#ordiniStorico", function() {
   console.log(ordini);
   
   //li mostro a video
-  html = "";
+  var list = "<ul id=\"search_item\" data-role=\"listview\" >";
+  
   $.each( ordini, function( id, ordine ){
-    html += "<li>";
-      html += "<a href=\"javascript:void(0);\" onClick=\"dettaglioOrdine('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
-        html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
-      html += "</a>";
-    html += "</li>";
+    list += "<li>";
+      list += "<a href=\"javascript:void(0);\" onClick=\"dettaglioOrdine('"+ id +"');\" >";
+        
+        var ragione_sociale = ordine.cliente_descrizione;
+        var data_ordine = date_format(ordine.data_ordine.substring(0, 10), 'yyyy-mm-dd', 'dd/mm/yyyy');
+        var numero_ordine = ordine.numero_ordine;
+        var importo = number_format(ordine.importo,2,',','.');
+        
+        if(ragione_sociale === null) ragione_sociale = "NUOVO CLIENTE";
+        list += ragione_sociale;
+        list += " - " + data_ordine;
+        list += " - " + numero_ordine;
+        list += " - " + importo;
+        
+      list += "</a>";
+    list += "</li>";
   });
+  
+  list += "</ul>";
+  
+  alert(list);
 
-  $ul.html( html );
+  $('#elenco_ordini').html( list );
   
   
 });
