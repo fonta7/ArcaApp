@@ -1395,21 +1395,35 @@ $( document ).on( "pagecreate", "#ordiniStorico", function() {
         var numero_ordine = ordine.numero_ordine;
         var importo = number_format(ordine.importo,2,',','.');
         
-        if(ragione_sociale === null) ragione_sociale = "NUOVO CLIENTE";
-        list += ragione_sociale;
-        list += " - " + data_ordine;
-        list += " - " + numero_ordine;
-        list += " - " + importo;
+        //flexbox grid
+        list += "<div class=\"row\">";
+          
+          if(ragione_sociale === null) ragione_sociale = "NUOVO CLIENTE";
+          list += "<div class=\"col-xs-6\">" + ragione_sociale + "</div>";
+          list += "<div class=\"col-xs-2\">" + numero_ordine + "</div>";
+          list += "<div class=\"col-xs-2\">" + data_ordine + "</div>";        
+          list += "<div class=\"col-xs-2\" align=right >" + importo + " &euro;</div>";
+        
+        list += "</div>";
         
       list += "</a>";
     list += "</li>";
   });
   
   list += "</ul>";
-  
-  alert(list);
 
   $('#elenco_ordini').html( list );
   
   
 });
+
+function dettaglioOrdine(id_ordine){
+  
+  //nascondo la lista ordini
+  $('#elenco_ordini').hide();
+  
+  //mostro il dettalgio ordine
+  $('#dettaglio_ordine').html(id_ordine);
+  
+  
+}

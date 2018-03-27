@@ -55,7 +55,7 @@ function number_format (number, decimals, dec_point, thousands_sep) {
 }
 
 //funzione per la formattazione di una data
-function date_format (date, in_format, out_format){
+function date_format(date, in_format, out_format){
     
     //inizializzazione
     var date_array = [];
@@ -64,16 +64,17 @@ function date_format (date, in_format, out_format){
     var d = "";
     var date_new = "";
     
+    
     //gestione input
     if(in_format == 'yyyy-mm-dd'){
         date_array = date.split("-");
         y = date_array[0];
-        m = date_array[2];
+        m = date_array[1];
         d = date_array[2];
     }
     
     //gestione output    
-    if(in_format == 'dd/mm/yyyy'){ date_new = d + "/" + m + "/" + y; }
+    if(out_format == 'dd/mm/yyyy') date_new = d + "/" + m + "/" + y;
     
     return date_new;
 
