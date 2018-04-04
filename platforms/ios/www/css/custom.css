@@ -20,10 +20,29 @@ body { opacity: 0; }
 }
 
 /* HEADER */
-.confirm-btn-header-right{
-    background: url('../img/button_confirm.png') no-repeat center center;
-    background-size: 58px 58px;
+.ui-header .ui-title{
+    line-height:1.2em;
+    margin-top:6px;
 }
+.ui-header .ui-title span.subtitle{
+    font-size:0.7em;
+}
+.ui-header .buttons{
+    width:130px;
+    height:60px;
+    top:0;
+    right:0;
+    position:absolute;
+    text-align:right;
+    padding:10px 10px 0px 0px;
+}
+.btn-header-right{
+    width: 32px;
+    height: 32px;
+    margin:0px;
+    padding:5px;
+}
+
 
 /* FOOTER */
 .ui-footer table#totali_ordine{
@@ -67,13 +86,19 @@ body { opacity: 0; }
 .button_menu .ui-btn.ui-btn-raised {
     padding:20px;
     font-size:1.3em;
+    text-align: left;
 }
 .button_menu .ui-btn.ui-btn-raised i.zmdi{
     float:left;
     font-size:1.2em;
+    margin-right:20px;
 }
 .button_menu .ui-btn.ui-btn-raised.clr-green {
     background-color: #039B42;
+    color: rgba(255,255,255,0.85);
+}
+.button_menu .ui-btn.ui-btn-raised.clr-orange {
+    background-color: #FF9000;
     color: rgba(255,255,255,0.85);
 }
 
@@ -105,16 +130,32 @@ body { opacity: 0; }
     color: rgba(255,255,255,0.85);
 }
 
+/* PAGE LOGIN*/
+#loginPage.ui-page-theme-a .ui-footer{
+    background-color: transparent;
+    text-align:right;
+    box-shadow: none;
+    border-color:transparent;
+}
+#loginPage.ui-page-theme-a .ui-footer span.version{
+    font-weight:normal;
+    font-size:0.9em;
+    padding-right:4px;
+    color:#aaaaaa;
+}
+
 /* log_import */
 .log_import li{
     clear:both;
+    text-align:left;
 }
 .log_import li img.ui-thumbnail-circular{
-    max-width:80px;
+    max-width:60px;
     float:left;
 }
 .log_import li h2{
-    padding:22px 0px;
+    padding:14px 0px;
+    
 }
 
 
@@ -122,7 +163,8 @@ body { opacity: 0; }
 @media only screen and (orientation:portrait){
     
     /*inserire l'elenco degli id delle pagine da mostrare solo landscape*/
-    #ordiniCreazioneStep2Page { display:none; }
+    #ordiniCreazionePage { display:none; }
+    #ordiniStorico { display:none; }
     
     #warning-message-portrait {
         text-align:center;
@@ -136,6 +178,10 @@ body { opacity: 0; }
     #warning-message-portrait { display:none; }
 }
 
+/* area dettaglio ordine */
+#dettaglio_ordine{
+    margin-top:28px;
+}
 
 /* tabella righe ordine */
 table#righe-ordine{
@@ -146,6 +192,8 @@ table#righe-ordine th{
     font-size:1em;
     text-transform: uppercase;
     border-bottom:1px solid #aaaaaa;
+    font-weight:bold;
+    text-align:center;
 }
 table#righe-ordine td{
     padding: 10px 6px;
@@ -175,6 +223,24 @@ table#righe-ordine tbody td a{
 }
 table#righe-ordine td .ui-input-text{
     margin-bottom:4px;
+}
+
+.tbl_head, .tbl_foot{
+    padding: 8px 0px 5px 0px;
+    font-size:0.9em;
+    text-transform: uppercase;
+    border-bottom:1px solid #aaaaaa;
+    font-weight:bold;
+    text-align:center;
+}
+.tbl_foot{
+    border-bottom:0px;
+    border-top:1px solid #aaaaaa;
+}
+.tbl_body{
+    padding: 10px 6px;
+    border-bottom:1px solid #eeeeee;
+    font-size:0.8em;
 }
 
 

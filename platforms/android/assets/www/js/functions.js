@@ -277,7 +277,7 @@ function importArticoli(codice_agente, token){
         $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ANAGRAFICA ARTICOLI IMPORTATA</h2></li>");
 
         //lancio lo step successivo di importazione
-        importModalitaPagamento(codice_agente, token);
+        importOrdiniStorico(codice_agente, token);
 
       }catch(err){
         $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ANAGRAFICA ARTICOLI ERRORE</h2></li>");
@@ -293,7 +293,48 @@ function importArticoli(codice_agente, token){
   
 }
 
-//STEP3 import modalita pagamento
+//STEP3 import storico ordini
+function importOrdiniStorico(codice_agente, token){
+  
+  console.log('IMPORTAZIONE STORICO ORDINI >> codice:' + codice_agente + ' - token:' + token);
+  
+  $.ajax({
+    url: API_PATH + 'ordini.php',
+    type: "POST",   
+    crossDomain: true,
+    data: {
+      codice_agente: codice_agente,
+      token: token,
+      action: 'elenco_ordini'
+    },
+    success: function(response){
+      
+      try{
+        
+        //effettuo il salvataggio dei dati json dell'agente nel local storage
+        localStorage.setItem('ordini_storico', response);
+        
+        //mostro il messaggio di importazione
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>STORICO ORDINI IMPORTATO</h2></li>");
+
+        //lancio lo step successivo di importazione
+        importModalitaPagamento(codice_agente, token);
+
+      }catch(err){
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>STORICO ORDINI ERRORE</h2></li>");
+        $.mobile.loading( "hide" );
+      }  
+
+    },
+    error: function (xhr, status) {
+      console.log("Error " + status + ": "+ xhr);
+      $.mobile.loading( "hide" );
+    }
+  });
+  
+}
+
+//STEP4 import modalita pagamento
 function importModalitaPagamento(codice_agente, token){
   
   console.log('IMPORTAZIONE MODALITA PAGAMENTO >> codice:' + codice_agente + ' - token:' + token);
@@ -341,27 +382,36 @@ function importModalitaPagamento(codice_agente, token){
 //////////////////////////////////////////////////
 // ORDINI STEP1 - RICERCA CLIENTE
 //////////////////////////////////////////////////
-$( document ).on( "pagecreate", "#ordiniCreazioneStep1Page", function() {
+$( document ).on( "pagecreate", "#ordiniCreazionePage", function() {
+  
+  //nascondo i contenuti degli altri step
+  $('.step1').show();
+  $('.step2').hide();
+  $('.step3').hide();
+  $('.step4').hide();
+  
   
   //carico l'elenco completo dei clienti
   var clienti = JSON.parse(localStorage.getItem('clienti'));
+  
+  //imposto il titolo
+  $('#titolo').html( 'Selezione Cliente');
 
   //ciclo l'elenco dei clienti
-  html = "";
+  search = "";
   $.each( clienti, function( id, cliente ){
-    html += "<li>";
-      html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
-        html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
-      html += "</a>";
-    html += "</li>";
+    search += "<li>";
+      search += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ cliente.ragione_sociale +"','"+ cliente.codice_pagamento +"');\" >";
+        search += cliente.ragione_sociale + " - " + cliente.codice_cliente;
+      search += "</a>";
+    search += "</li>";
   });
 
-  $('#search_customer').html( html );
+  $('#search_customer').html( search );
   $('#search_customer').listview( "refresh" );
   $('#search_customer').trigger( "updatelayout");
   
-  
-  
+
   //istanzio il filtro
   $( "#search_customer" ).on( "filterablebeforefilter", function ( e, data ) {
     var $ul = $( this ),
@@ -422,8 +472,8 @@ function creaOrdine_AggiungiCliente(codice_cliente, ragione_sociale, codice_paga
   //salvo il json nel local storage
   localStorage.setItem('ordine', ordine_json);
   
-  //reindirizzo allo step2
-  location.href="ordini_creazione_step2.html";
+  //vado allo step 2
+  ordiniCreazioneStep2();
   
 }
 
@@ -432,11 +482,20 @@ function creaOrdine_AggiungiCliente(codice_cliente, ragione_sociale, codice_paga
 //////////////////////////////////////////////////
 // ORDINI STEP2 - RIGHE ORDINE
 //////////////////////////////////////////////////
-$( document ).on("pagecreate", "#ordiniCreazioneStep2Page", function() {
+function ordiniCreazioneStep2(){
+  
+  //nascondo i contenuti degli altri step
+  $('.step1').hide();
+  $('.step2').fadeIn(800);
+  $('.step3').hide();
+  $('.step4').hide();
+  
+  //modifico title
+  $('#titolo').html( 'Creazione Righe Ordine');
   
   //aggiungo codice e ragione sociale del cliente
   var ordine = JSON.parse(localStorage.getItem('ordine'));
-  $("#cliente").html(ordine.cliente_ragionesociale + ' - ' + ordine.cliente_codice);
+  $("#sottotitolo").html(ordine.cliente_ragionesociale + ' - ' + ordine.cliente_codice);
   
   //funzione per creare le righe nella tabella
   for (i = 0; i < NUMERO_RIGHE_ORDINE; i++) { 
@@ -453,7 +512,7 @@ $( document ).on("pagecreate", "#ordiniCreazioneStep2Page", function() {
   $('table#righe-ordine tr td').eq(7).css('width','12%');
   $('table#righe-ordine tr td').eq(8).css('width','15%');
   
-});
+};
 
 function creaRigheOrdine(id_riga) {
   
@@ -1063,7 +1122,17 @@ function ricalcolaTotaliOrdine(){
   
 } 
 
+//funzione per ricalcolare il totale riga
+function ricalcolaTotaleRiga(id_riga){
 
+  var prezzo = ($('#prezzo_' + i).val())*1;
+  var qta = ($('#qta_' + i).val())*1;
+  var sconto = ($('#sconto_' + i).val())*1;
+  
+  var totale_riga = 0;
+  totale_riga = (prezzo * qta) - ((prezzo * qta)/100)*sconto;
+
+}
 
 //funzione per aggiungere le righe impostate all'ordine
 function creaOrdine_AggiungiRighe(){
@@ -1117,19 +1186,7 @@ function creaOrdine_AggiungiRighe(){
   localStorage.setItem('ordine', ordine_json);
   
   //reindirizzo allo step3
-  location.href="ordini_creazione_step3.html";
-
-}
-
-//funzione per ricalcolare il totale riga
-function ricalcolaTotaleRiga(id_riga){
-
-  var prezzo = ($('#prezzo_' + i).val())*1;
-  var qta = ($('#qta_' + i).val())*1;
-  var sconto = ($('#sconto_' + i).val())*1;
-  
-  var totale_riga = 0;
-  totale_riga = (prezzo * qta) - ((prezzo * qta)/100)*sconto;
+  ordiniCreazioneStep3();
 
 }
 
@@ -1138,7 +1195,18 @@ function ricalcolaTotaleRiga(id_riga){
 //////////////////////////////////////////////////
 // ORDINI STEP3 - COMPLETAMENTO ORDINE
 //////////////////////////////////////////////////
-$( document ).on( "pageinit", "#ordiniCreazioneStep3Page", function() {
+function ordiniCreazioneStep3(){
+  
+  //nascondo i contenuti degli altri step
+  $('.step1').hide();
+  $('.step2').hide();
+  $('.step3').fadeIn(800);
+  $('.step4').hide();
+  
+  //modifico titolo e sottotitolo
+  $('#titolo').html( "Completa l'Ordine" );
+  $("#sottotitolo").html( "" );
+  
   
   //recupero i dati del cliente selezionato nell'ordine
   var ordine = JSON.parse(localStorage.getItem('ordine'));
@@ -1207,8 +1275,7 @@ $( document ).on( "pageinit", "#ordiniCreazioneStep3Page", function() {
   indirizzo_fatturazione+= cap + " " + citta + " (" + provincia + ")"; 
   $('#indirizzo_fatturazione').html(indirizzo_fatturazione);
   
-
-});
+};
 
 //funzione per completare l'ordine con le informazioni aggiuntive
 function creaOrdine_PagamentoSpedizione(){
@@ -1232,7 +1299,7 @@ function creaOrdine_PagamentoSpedizione(){
   localStorage.setItem('ordine', ordine_json);
 
   //reindirizzo allo step4
-  location.href="ordini_creazione_step4.html";
+  ordiniCreazioneStep4();
   
 }
 
@@ -1241,93 +1308,236 @@ function creaOrdine_PagamentoSpedizione(){
 //////////////////////////////////////////////////
 // ORDINI STEP4 - ESPORTAZIONE
 //////////////////////////////////////////////////
+function ordiniCreazioneStep4(){
+  
+  //nascondo i contenuti degli altri step
+  $('.step1').hide();
+  $('.step2').hide();
+  $('.step3').hide();
+  $('.step4').fadeIn(800);
+  
+  //modifico titolo e sottotitolo
+  $('#titolo').html( "Esportazione Ordini" );
+  $("#sottotitolo").html( "" );
 
-$( document ).on( "pageinit", "#exportOrderPage", function() {
+}
+  
 
-  //funzione di esportazione ordini
-  $( "#export_form_submit" ).bind( "click", function(){
+//funzione di esportazione ordini
+function esportazioneOrdine(){
 
-    //resetto il msg response
-    $.mobile.loading( "show", {
-      text: "esportazione ordini in corso, attendere",
-      textVisible: true,
-      theme: "",
-      html: ""
-    });
-    
-    //resetto il messaggio iniziale alla lista di esportazione
-    $('.response_msg').html("");
-    
-    //recupero i dati dell'agente
-    var agente = JSON.parse(localStorage.getItem('agente'));
-    
-    //recupero l'ordine corrente
-    var json_ordine = localStorage.getItem('ordine');
+  //resetto il msg response
+  $.mobile.loading( "show", {
+    text: "esportazione ordini in corso, attendere",
+    textVisible: true,
+    theme: "",
+    html: ""
+  });
+  
+  //resetto il messaggio iniziale alla lista di esportazione
+  $('.response_msg').html("");
+  
+  //recupero i dati dell'agente
+  var agente = JSON.parse(localStorage.getItem('agente'));
+  
+  //recupero l'ordine corrente
+  var json_ordine = localStorage.getItem('ordine');
 
-    var codice_agente = agente.codice;
-    var token = agente.token;
-    
-    console.log('IMPORTAZIONE ORDINE CORRENTE >> ' + json_ordine);
-    
-    //invio via ajax l'ordine corrente
-    $.ajax({
-      url: API_PATH + 'ordini.php',
-      type: "POST",   
-      crossDomain: true,
-      data: {
-        codice_agente: codice_agente,
-        token: token,
-        action: 'inserisci_ordine',
-        json_ordine: json_ordine
-      },
-      success: function(response){
+  var codice_agente = agente.codice;
+  var token = agente.token;
+  
+  console.log('IMPORTAZIONE ORDINE CORRENTE >> ' + json_ordine);
+  
+  //invio via ajax l'ordine corrente
+  $.ajax({
+    url: API_PATH + 'ordini.php',
+    type: "POST",   
+    crossDomain: true,
+    data: {
+      codice_agente: codice_agente,
+      token: token,
+      action: 'inserisci_ordine',
+      json_ordine: json_ordine
+    },
+    success: function(response){
+      
+      var response_array = response.split("|");
+      var status = response_array[0];
+      var description = response_array[1];
+      
+      if(status=='OK'){
         
-        var response_array = response.split("|");
-        var status = response_array[0];
-        var description = response_array[1];
+        //nascondo il bottone di esportazione e il loader
+        $('#export_form_submit').hide();
+        $.mobile.loading( "hide" );
         
-        if(status=='OK'){
-          
-          //mostro il messaggio di importazione
-          $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ORDINE ESPORTATO CORRETTAMENTE</h2></li>");
-          $.mobile.loading( "hide" );
-          
-          //rimuovo l'ordine
-          localStorage.removeItem('ordine');
-          
-          
-        }else if(status=='KO'){
-          
-          $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ERRORE ESPORTAZIONE ORDINE</h2><br><p>" + description + "</p></li>");
-          $.mobile.loading( "hide" );
+        //mostro il messaggio di importazione
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ORDINE ESPORTATO CORRETTAMENTE</h2></li>");       
         
-        }else{
-          
-          alert(response);
-          
-        }
-    
-      },
-      error: function(XMLHttpRequest, textStatus, errorThrown) {
+        //rimuovo l'ordine
+        localStorage.removeItem('ordine');
         
-        //se non è presente una connessione allora procedo con il salvataggio in locale dell'ordine
-        alert("Connessione assente, effettuare l'esportazione con una connessione attiva");
+      }else if(status=='KO'){
         
-        //verifico se è già presente nel localstorage il file contenente gli ordini da esportare
-        //if(localStorage.getItem('ordini_da_esportare') !== null){
-        //  alert('creazione archivio ordine');
-        //}
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ERRORE ESPORTAZIONE ORDINE</h2><br><p>" + description + "</p></li>");
+        $.mobile.loading( "hide" );
+      
+      }else{
         
-        //aggiungo l'ordine corrente all'archivio ordini da esportare
-        
-        
-        //cancello l'ordine corrente
-        
+        alert(response);
         
       }
-    });  
-    
+  
+    },
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+      
+      //se non è presente una connessione allora procedo con il salvataggio in locale dell'ordine
+      alert("Connessione assente, effettuare l'esportazione con una connessione attiva");
+      
+      //verifico se è già presente nel localstorage il file contenente gli ordini da esportare
+      //if(localStorage.getItem('ordini_da_esportare') !== null){
+      //  alert('creazione archivio ordine');
+      //}
+      
+      //aggiungo l'ordine corrente all'archivio ordini da esportare
+      
+      
+      //cancello l'ordine corrente
+      
+      
+    }
+  });  
+  
+};
+
+
+
+//////////////////////////////////////////////////
+// ORDINI STORICO
+//////////////////////////////////////////////////
+$( document ).on( "pagecreate", "#ordiniStorico", function() {
+  
+  //recupero i dati relativi allo storico ordini
+  var ordini = JSON.parse(localStorage.getItem('ordini_storico'));
+  //console.log(ordini);
+  
+  //nascondo i campi del dettaglio
+  $('#reloadListaOrdini').hide();
+  $('#numero_ordine').hide();
+  $('#dettaglio_ordine').hide();
+  
+  //li mostro a video
+  var list = "<ul id=\"search_item\" data-role=\"listview\" >";
+  
+  $.each( ordini, function( id, ordine ){
+    list += "<li>";
+      list += "<a href=\"javascript:void(0);\" onClick=\"dettaglioOrdine('"+ id +"');\" >";
+        
+        var ragione_sociale = ordine.cliente_descrizione;
+        var data_ordine = date_format(ordine.data_ordine.substring(0, 10), 'yyyy-mm-dd', 'dd/mm/yyyy');
+        var numero_ordine = ordine.numero_ordine;
+        var importo = number_format(ordine.importo,2,',','.');
+        
+        //flexbox grid
+        list += "<div class=\"row\">";
+          
+          if(ragione_sociale === null) ragione_sociale = "NUOVO CLIENTE";
+          list += "<div class=\"col-xs-6\">" + ragione_sociale + "</div>";
+          list += "<div class=\"col-xs-2\">" + numero_ordine + "</div>";
+          list += "<div class=\"col-xs-2\">" + data_ordine + "</div>";        
+          list += "<div class=\"col-xs-2\" align=right >" + importo + " &euro;</div>";
+        
+        list += "</div>";
+        
+      list += "</a>";
+    list += "</li>";
   });
+  
+  list += "</ul>";
+  
+  //mostro il titolo
+  $('#titolo').html('Ultimi Ordini Inseriti');
+
+  //mostro il contenuto
+  $('#elenco_ordini').html( list );
+  $('#elenco_ordini').show();
+  
   
 });
 
+function dettaglioOrdine(id_ordine){
+  
+  //nascondo la lista ordini
+  $('#elenco_ordini').hide();
+  
+  //recupero i dati relativi all'ordine
+  var ordini = JSON.parse(localStorage.getItem('ordini_storico'));
+  var ordine_selezionato = [];
+  $.each( ordini, function( id, ordine ){
+    if(id == id_ordine){
+      ordine_selezionato = ordine;
+      return false;//esco dal ciclo
+    }
+  });
+  
+  //mostro il titolo
+  $('#titolo').html('Dettaglio Ordine');
+  $('#numero_ordine').html('<br/>Ordine N. ' + ordine_selezionato.numero_ordine);
+  $('#numero_ordine').show();
+  $('#reloadListaOrdini').show();
+  
+  //contenuto ordine (testata)
+  var ord = "";
+  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>DATA ORDINE:</b></div><div class=\"col-xs-8\">" + date_format(ordine_selezionato.data_ordine.substring(0, 10), 'yyyy-mm-dd', 'dd/mm/yyyy') + "</div></div>";
+  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>DATA CONSEGNA:</b></div><div class=\"col-xs-8\">" + date_format(ordine_selezionato.data_consegna, 'yyyy-mm-dd', 'dd/mm/yyyy') + "</div></div>";
+  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>IMPORTO:</b></div><div class=\"col-xs-8\">" + number_format(ordine_selezionato.importo, 2, ',','.') + "&euro;</div></div>";
+  
+  tipo_pagamento_array = ordine_selezionato.tipo_pagamento.split("|");
+  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>PAGAMENTO:</b></div><div class=\"col-xs-8\">" + tipo_pagamento_array[1] + "</div></div>";
+  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>NOTE:</b></div><div class=\"col-xs-8\">" + ordine_selezionato.note + "</div></div>";
+  
+  ord+= "<br/>";
+  
+  //contenuto ordine (righe)
+  ord+= "<div class=\"row tbl_head\">";
+    ord+= "<div class=\"col-xs-2\">CODICE</div>";
+    ord+= "<div class=\"col-xs-3\">DESCRIZIONE</div>";
+    ord+= "<div class=\"col-xs-2\">TGL/COL</div>";
+    ord+= "<div class=\"col-xs-1\">PRZ</div>";
+    ord+= "<div class=\"col-xs-1\">QT&Agrave;</div>";
+    ord+= "<div class=\"col-xs-1\">SC %</div>";
+    ord+= "<div class=\"col-xs-2\">TOTALE</div>";
+  ord+= "</div>";
+    
+  $.each( ordine_selezionato.righe, function( id_riga, riga ){
+
+    ord+= "<div class=\"row tbl_body\">";
+      ord+= "<div class=\"col-xs-2\">" + riga.codice_articolo + "</div>";
+      ord+= "<div class=\"col-xs-3\">" + riga.descrizione_articolo + "</div>";
+      
+      var tgl_col = "";
+      if(riga.taglia !== "") tgl_col+= riga.taglia;
+      if((riga.taglia !== "" && riga.colore !== "") || (riga.taglia === "" && riga.colore === "")) tgl_col+= " - ";
+      if(riga.colore !== "") tgl_col+= riga.colore;
+      
+      ord+= "<div class=\"col-xs-2\" align=center>" + tgl_col + "</div>";
+      ord+= "<div class=\"col-xs-1\" align=right>" + number_format(riga.prezzo_listino,2,',','.') + "</div>";
+      ord+= "<div class=\"col-xs-1\" align=right>" + riga.quantita + "</div>";
+      ord+= "<div class=\"col-xs-1\" align=right>" + riga.sconto + "</div>";
+      ord+= "<div class=\"col-xs-2\" align=right>" + number_format(riga.valore_netto,2,',','.') + "</div>";
+    ord+= "</div>";
+    
+  });
+  
+  ord+= "<div class=\"row tbl_foot\">";
+    ord+= "<div class=\"col-xs-10\" align=right >TOTALE</div>";
+    ord+= "<div class=\"col-xs-2\" align=right >" + number_format(ordine_selezionato.importo, 2, ',','.') + "</div>";
+  ord+= "</div>";
+  
+  
+  //mostro il dettalgio ordine
+  $('#dettaglio_ordine').html( ord );
+  $('#dettaglio_ordine').fadeIn(800);
+  
+  
+}

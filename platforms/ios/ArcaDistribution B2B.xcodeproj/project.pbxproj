@@ -284,7 +284,7 @@
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
 						DevelopmentTeam = ASNZTE933D;
-						ProvisioningStyle = Automatic;
+						ProvisioningStyle = Manual;
 					};
 				};
 			};
@@ -403,8 +403,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Alessandro Fontanel (ASNZTE933D)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = NO;
 				DEVELOPMENT_TEAM = ASNZTE933D;
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -418,7 +418,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.cordova.arcab2bapp;
 				PRODUCT_NAME = "ArcaDistribution B2B";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "62073806-d34c-4e61-aa98-7360493bb963";
+				PROVISIONING_PROFILE_SPECIFIER = "Arcadistribution B2B";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -433,8 +434,8 @@
 				CLANG_ENABLE_MODULES = YES;
 				CLANG_ENABLE_OBJC_ARC = YES;
 				CODE_SIGN_IDENTITY = "iPhone Distribution: Alessandro Fontanel (ASNZTE933D)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				COPY_PHASE_STRIP = YES;
 				DEVELOPMENT_TEAM = ASNZTE933D;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -446,7 +447,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = io.cordova.arcab2bapp;
 				PRODUCT_NAME = "ArcaDistribution B2B";
-				PROVISIONING_PROFILE_SPECIFIER = "";
+				PROVISIONING_PROFILE = "62073806-d34c-4e61-aa98-7360493bb963";
+				PROVISIONING_PROFILE_SPECIFIER = "Arcadistribution B2B";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;

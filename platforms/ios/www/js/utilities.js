@@ -54,6 +54,32 @@ function number_format (number, decimals, dec_point, thousands_sep) {
     return s.join(dec);
 }
 
+//funzione per la formattazione di una data
+function date_format(date, in_format, out_format){
+    
+    //inizializzazione
+    var date_array = [];
+    var y = "";
+    var m = "";
+    var d = "";
+    var date_new = "";
+    
+    
+    //gestione input
+    if(in_format == 'yyyy-mm-dd'){
+        date_array = date.split("-");
+        y = date_array[0];
+        m = date_array[1];
+        d = date_array[2];
+    }
+    
+    //gestione output    
+    if(out_format == 'dd/mm/yyyy') date_new = d + "/" + m + "/" + y;
+    
+    return date_new;
+
+}
+
 //funzione per effettuare il padding a sinistra
 function pad (str, max) {
   str = str.toString();

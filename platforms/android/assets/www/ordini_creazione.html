@@ -1,0 +1,359 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<title>Arca Distribution - Selezione Cliente</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+	<link rel="stylesheet" href="vendor/waves/waves.min.css" />
+	<link rel="stylesheet" href="vendor/wow/animate.css" />
+	<link rel="stylesheet" href="css/nativedroid2.css" />
+	<link rel="stylesheet" href="css/nativedroid2.color.light-blue.css" />
+	<link rel="stylesheet" href="css/custom.css" />
+
+</head>
+<body>
+
+	<div data-role="page" id="ordiniCreazionePage"  >
+
+		<!-- include slide menu -->
+		<nd2-include data-src="menu.left.html"></nd2-include>
+
+
+
+		<!--//////////-->
+		<!--  HEADER  -->
+		<!--//////////-->
+		<div data-role="header" data-position="fixed">
+			
+			<!-- menu sinistra -->
+			<a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
+			
+			<!-- titolo e sottotitolo -->
+			<h1 class="wow fadeIn" data-wow-delay='0.4s'>
+				<span id="titolo" class="title"></span><br/>
+				<span id="sottotitolo" class="subtitle"></span>
+			</h1>
+			
+			<!-- parte di destra -->
+			<div class="buttons">
+				
+				<span class=step2>
+					<img src="img/arrow-left.png" class="btn-header-right" onClick="location.reload();" >
+					<img src="img/check.png" class="btn-header-right" onClick="creaOrdine_AggiungiRighe();" >	
+				</span>
+				
+				<span class=step3>
+					<img src="img/arrow-left.png" class="btn-header-right" onClick="ordiniCreazioneStep2();" >
+					<img src="img/check.png" class="btn-header-right" onClick="creaOrdine_PagamentoSpedizione();" >
+				</span>
+				
+				<span class=step4>
+					<!--<img src="img/arrow-left.png" class="btn-header-right" onClick="ordiniCreazioneStep3();" >-->
+				</span>
+				
+			</div>
+			
+		</div>
+		
+		
+		
+		<!--//////////-->
+		<!--   TABS   -->
+		<!--//////////-->
+		<ul data-role="nd2tabs" data-swipe="true" class="step3" >
+			<li data-tab="dati-aggiuntivi">Dati Aggiuntivi</li>
+			<li data-tab="indirizzo-spedizione">Indirizzo</li>
+			<li data-tab="note">Note</li>
+		</ul>
+
+
+
+		<!--//////////-->
+		<!-- CONTENT  -->
+		<!--//////////-->
+		<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" >
+			
+			
+			<!-- STEP1 - ricerca cliente -->
+			<div class="step1" >
+				<form>				
+					<ul id="search_customer" data-role="listview" data-filter="true" data-filter-reveal="false" data-filter-placeholder="Ricerca cliente..." >
+					</ul>				
+				</form>		
+			</div>
+			
+			
+			<!-- STEP2 - creazione righe -->
+			<div class="step2" >
+				<br/>
+				<form id="create_order" >
+					
+					<!-- tabella con righe ordine-->
+					<table id="righe-ordine" border=0 cellspacing=0 cellpadding=0 width=100% >
+						
+						<!-- header -->
+						<thead>
+							<tr>
+								<th></th>
+								<th></th>
+								<th>codice</th>
+								<th>descrizione</th>
+								<th>prezzo</th>
+								<th>qt&agrave;</th>
+								<th colspan=2 >omag/scon</th>
+								<th>totale</th>
+							</tr>						
+						</thead>
+						
+						<!-- body -->
+						<tbody></tbody>
+	
+					</table>
+					
+					<!-- id riga selezionata per la ricerca articolo -->
+					<input type="text" id="rigaInserimentoArticolo" value="">
+				</form>			
+			</div>
+			
+			
+			<!-- STEP3 - dati spedizione e pagamento -->
+			<div class="step3" >
+				
+				<form id="complete_order" >
+				
+					<!-- dati aggiuntivi -->
+					<div data-role="nd2tab" data-tab="dati-aggiuntivi">
+						
+						<!-- modalità di pagamento -->
+						<label for="modalita_pagamento" class="select">Modalit&agrave di pagamento</label>
+						<select id="modalita_pagamento" ></select>
+						
+						<br/>
+						
+						<!-- data di consegna -->
+						<label for="data_consegna">Data di consegna</label>
+						<input type="date" name="data_consegna" id="data_consegna" value="" placeholder="">
+						
+					</div>	
+					
+					
+					<!-- indirizzo di spedizione -->
+					<div data-role="nd2tab" data-tab="indirizzo-spedizione">
+						
+						<b>INDIRIZZO DI FATTURAZIONE</b><br/>
+						<span id="indirizzo_fatturazione"></span>
+						
+						<br/><br/>
+						
+						<b>INDIRIZZO DI SPEDIZIONE</b>
+						<label>Compilare solo se diverso dall'indirizzo di fatturazione</label><br/>
+						
+						<label for="name2b">Indirizzo</label>
+						<input type="text" name="spedizione_indirizzo" id="spedizione_indirizzo" value="" placeholder="" >
+						
+						<br/>
+						
+						<label for="name2b">CAP</label>
+						<input type="text" name="spedizione_cap" id="spedizione_cap" value="" placeholder="" >
+						
+						<br/>
+						
+						<label for="name2b">Citt&agrave;</label>
+						<input type="text" name="spedizione_citta" id="spedizione_citta" value="" placeholder="" >
+						
+						<br/>
+						
+						<label for="name2b">Provincia</label>
+						<input type="text" name="spedizione_provincia" id="spedizione_provincia" value="" placeholder="" >
+						
+					</div>
+					
+					
+					<!-- note -->
+					<div data-role="nd2tab" data-tab="note">
+						
+						<label for="textarea2b">Note aggiuntive</label>
+						<textarea cols="40" rows="8" name="note" id="note" placeholder="..."></textarea>
+						
+					</div>
+					
+				</form>
+				
+			</div>
+			
+			<!-- STEP4 - conferma ordine -->
+			<div class="step4" >
+				<form id="import" >
+					
+					<!-- mottone esportazione -->
+					<div class="button_menu">
+						<button type="button" id="export_form_submit" class="ui-btn ui-btn-raised clr-primary" onClick="esportazioneOrdine();" >
+							<i class='zmdi zmdi-upload'></i> ESPORTA
+						</button>
+					</div>
+					
+					<!-- lista step importazione -->
+					<ul data-role="listview" data-icon="false" class="response_msg log_import" >
+					</ul>				
+				
+				</form>
+			</div>
+
+		</div>
+		
+		
+		
+		<!--//////////-->		
+		<!--  FOOTER  -->
+		<!--//////////-->	
+		<!-- footer totali ordine -->
+		<div class="step2" data-role="footer" data-position="fixed" >
+
+			<div class="row center-xs">
+				<div class="col-xs-4">
+					<div class="box">
+						<!-- <a href="#" class="ui-btn ui-mini nd2-btn-icon-block"><i class='zmdi zmdi-plus-circle'></i> aggiungi riga</a> -->
+					</div>
+				</div>
+				<div class="col-xs-8">
+					<div class="box">
+						
+						<table id="totali_ordine">
+							<tbody>
+								<tr>
+									<!-- visualizzazione totale lordo -->
+									<td width=18% ><label for="totale_lordo">Tot. Lordo:</label></td>
+									<td width=28% ><input type="text" id="totale_lordo" value="0.00" ></td>
+									
+									<td width=8%>&nbsp;</td>
+									
+									<!-- visualizzazione totale netto -->
+									<td width=18% ><label for="totale_netto">Tot. Netto</label></td>
+									<td width=28% ><input type="text" id="totale_netto" value="0.00" ></td>							
+								</tr>								
+							</tbody>														
+						</table>
+						
+					</div>
+				</div>
+			</div>
+			
+		</div>
+		
+		
+		
+		<!--//////////-->
+		<!--  MODAL   -->
+		<!--//////////-->
+		
+		<!-- popup ricerca articolo -->
+		<div data-role="popup" id="popupRicercaArticolo" >
+			<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			<div data-role="header">
+				<h1 class='nd-title'>ARTICOLI TROVATI</h1>
+			</div>
+			<div data-role="content">
+				
+				<!-- elenco articoli risultati ricerca -->
+				<form>				
+					<span id="search_list"></span>				
+				</form>
+				
+			</div>
+		</div>		
+		
+		<!-- popup segnalazione disponibilità -->
+		<div data-role="popup" id="popupDisponibilita" data-dismissible="false" >
+			<a href="javascript:void(0);" onClick="popupPromozioni( $('#id_riga_disponibilita').val(), JSON.parse($('#articolo_json_disponibilita').val()), 'popup' )" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			<div data-role="header" style="background-color: #ee0000;" >
+				<h1 class='nd-title'>ARTICOLO NON DISPONIBILE</h1>
+			</div>					
+			<div data-role="content">
+				<span id="popupDisponibilitaContent" ></span>
+				<input type="hidden" id="id_riga_disponibilita" value="" >
+				<input type="hidden" id="articolo_json_disponibilita" value="" >
+			</div>
+		</div>		
+		
+		<!-- popup promozioni -->
+		<div data-role="popup" id="popupPromozioni" data-dismissible="false" >
+			<div data-role="header" >
+				<h1 class='nd-title'>PROMOZIONI DISPONIBILI</h1>
+			</div>					
+			<div data-role="content">
+				<span id="popupPromozioniContent" ></span>
+				<input type="hidden" id="articolo_json_promozioni" value="" >
+			</div>
+		</div>		
+
+		<!-- popup selezione taglie colori -->
+		<div data-role="popup" id="popupTaglieColori" data-dismissible="false" >
+			<!-- <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a> -->
+			<div data-role="header">
+				<h1 class='nd-title'>SELEZIONE TAGLIA / COLORE</h1>
+			</div>
+			<div data-role="content">
+				
+				<!-- form di selezione taglia / colore -->
+				<form>
+					<span id="selezione_taglia">
+						<label for="taglia" class="select">Taglia</label>
+						<select id="taglia" class="select-popup" ></select>
+					</span>
+					
+					<span id="selezione_colore">
+						<label for="colore" class="select">Colore</label>
+						<select id="colore" class="select-popup" ></select>
+					</span>
+					
+					<input type="hidden" id="id_riga_caratteristiche" value="" >
+					<input type="hidden" id="tipo_selezione_caratteristiche" value="" >
+					<button type="button" id="select_taglia_colore" class="ui-btn ui-btn-raised clr-primary" onClick="impostaTagliaColore();" >SELEZIONA</button>
+				</form>
+				
+			</div>
+		</div>		
+		
+		<!-- popup segnalazione -->
+		<div data-role="popup" id="popupSegnalazione" data-dismissible="false" >
+			<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			<div data-role="header">
+				<h1 class='nd-title'>ATTENZIONE !</h1>
+			</div>					
+			<div data-role="content">
+				<span id="popupSegnalazioneContent" ></span>
+			</div>
+		</div>
+		
+	</div>
+
+	
+	<!-- messaggio rotazione telefono -->	
+	<div id="warning-message-portrait">
+		Ruota il telefono in orizzontale per procedere con l'inserimento dell'ordine!
+	</div>
+	
+	
+	<!-- blocco funzioni all'attivazioni del loader -->
+	<div class="ui-loader-background"> </div>
+	
+	
+	<!-- inclusioni js obbligatorie -->
+	<script src="js/jquery.min.2.1.4.js"></script>
+	<script src="js/jquery-ui.min.1.11.4.js"></script>
+	<script src="js/jquery.mobile.min.1.4.5.js"></script>
+	<script src="vendor/waves/waves.min.js"></script>
+	<script src="vendor/wow/wow.min.js"></script>
+	<script src="js/nativedroid2.js"></script>
+	<script src="js/nd2settings.js"></script>
+	
+	<!-- funzioni js -->
+	<script src="js/utilities.js"></script>
+	<script src="js/functions.js"></script>
+	
+	<script src="cordova.js"></script>
+
+</body>
+</html>
