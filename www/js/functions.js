@@ -243,13 +243,13 @@ $( "#import_form_submit" ).bind( "click", function(){
         localStorage.setItem('clienti', response);
         
         //mostro il messaggio di importazione
-        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ANAGRAFICA CLIENTI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO CLIENTI</h2></li>");
         
         //lancio lo step successivo di importazione
         importArticoli(codice_agente, token);
 
       }catch(err){
-        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ANAGRAFICA CLIENTI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO CLIENTI</h2></li>");
         $.mobile.loading( "hide" );
       }  
 
@@ -283,13 +283,13 @@ function importArticoli(codice_agente, token){
         localStorage.setItem('articoli', response);
         
         //mostro il messaggio di importazione
-        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ANAGRAFICA ARTICOLI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO ARTICOLI</h2></li>");
 
         //lancio lo step successivo di importazione
         importOrdiniStorico(codice_agente, token);
 
       }catch(err){
-        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ANAGRAFICA ARTICOLI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO ARTICOLI</h2></li>");
         $.mobile.loading( "hide" );
       }  
 
@@ -324,13 +324,13 @@ function importOrdiniStorico(codice_agente, token){
         localStorage.setItem('ordini_storico', response);
         
         //mostro il messaggio di importazione
-        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>STORICO ORDINI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO ORDINI</h2></li>");
 
         //lancio lo step successivo di importazione
         importOrdiniBozze(codice_agente, token);
 
       }catch(err){
-        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>STORICO ORDINI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO ORDINI</h2></li>");
         $.mobile.loading( "hide" );
       }  
 
@@ -348,14 +348,19 @@ function importOrdiniBozze(codice_agente, token){
   
   console.log('IMPORTAZIONE BOZZE ORDINI >> codice:' + codice_agente + ' - token:' + token);
   
+  //recupero l'elenco delle bozze ordini attualmente presenti nell'app per la sincronizzazione
+  var bozze_app = localStorage.getItem('ordini_bozze');
+  
+  
   $.ajax({
     url: API_PATH + 'ordini.php',
     type: "POST",   
     crossDomain: true,
     data: {
       codice_agente: codice_agente,
+      json_bozze_app: bozze_app,
       token: token,
-      action: 'elenco_bozze'
+      action: 'sincronizza_bozze'
     },
     success: function(response){
       
@@ -365,13 +370,13 @@ function importOrdiniBozze(codice_agente, token){
         localStorage.setItem('ordini_bozze', response);
         
         //mostro il messaggio di importazione
-        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>BOZZE ORDINI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>SINCRONIZZAZIONE BOZZE</h2></li>");
 
         //lancio lo step successivo di importazione
         importModalitaPagamento(codice_agente, token);
 
       }catch(err){
-        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>BOZZE ORDINI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>SINCRONIZZAZIONE BOZZE</h2></li>");
         $.mobile.loading( "hide" );
       }  
 
@@ -405,7 +410,7 @@ function importModalitaPagamento(codice_agente, token){
         localStorage.setItem('pagamento', response);
         
         //mostro il messaggio di importazione
-        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>MODALIT&Agrave; DI PAGAMENTO</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO DATI AGGIUNTIVI</h2></li>");
 
         //recupero via ajax gli articoli
         $.mobile.loading( "hide" );
@@ -414,7 +419,7 @@ function importModalitaPagamento(codice_agente, token){
         setTimeout( function(){ location.href="home_ordini.html"; }, 1000 );
 
       }catch(err){
-        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>MODALIT&Agrave; DI PAGAMENTO</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO DATI AGGIUNTIVI</h2></li>");
         $.mobile.loading( "hide" );
       }  
 
@@ -433,68 +438,92 @@ function importModalitaPagamento(codice_agente, token){
 //////////////////////////////////////////////////
 $( document ).on( "pagecreate", "#ordiniCreazionePage", function() {
   
-  //nascondo i contenuti degli altri step
-  $('.step1').show();
-  $('.step2').hide();
-  $('.step3').hide();
-  $('.step4').hide();
+  //verifico se sto arrivando dalla selezione di una bozza
+  //in questo caso salto il primo step
+  var ordine = {};
+  goto_step2 = false;
+  if(localStorage.getItem('ordine') !== null){   
+    ordine = JSON.parse(localStorage.getItem('ordine'));
+    if(ordine.da_lista_bozze == '1') goto_step2 = true;
+  }
   
-  
-  //carico l'elenco completo dei clienti
-  var clienti = JSON.parse(localStorage.getItem('clienti'));
-  
-  //imposto il titolo
-  $('#titolo').html( 'Selezione Cliente');
-
-  //ciclo l'elenco dei clienti
-  search = "";
-  $.each( clienti, function( id, cliente ){
-    search += "<li>";
-      search += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ btoa(cliente.ragione_sociale) +"','"+ cliente.codice_pagamento +"');\" >";
-        search += cliente.ragione_sociale + " - " + cliente.codice_cliente;
-      search += "</a>";
-    search += "</li>";
-  });
-
-  $('#search_customer').html( search );
-  $('#search_customer').listview( "refresh" );
-  $('#search_customer').trigger( "updatelayout");
-  
-
-  //istanzio il filtro
-  $( "#search_customer" ).on( "filterablebeforefilter", function ( e, data ) {
-    var $ul = $( this ),
-        $input = $( data.input ),
-        value = $input.val(),
-        html = "";
-        $ul.html( "" );
-        
-    //effettuo la ricerca dopo aver inserito almeno 3 caratteri
-    if ( (value && value.length >= 3) || value === "" ){
-      
-      $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
-      $ul.listview( "refresh" );
-      
-      //recupero le info dell'agente
-      var clienti = JSON.parse(localStorage.getItem('clienti'));
-
-      //ciclo l'elenco dei clienti
-      html = "";
-      $.each( clienti, function( id, cliente ){
-        html += "<li>";
-          html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ btoa(cliente.ragione_sociale) +"','"+ cliente.codice_pagamento +"');\" >";
-            html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
-          html += "</a>";
-        html += "</li>";
-      });
-
-      $ul.html( html );
-      $ul.listview( "refresh" );
-      $ul.trigger( "updatelayout");
-
-    }
+  //procedo con il caricamento standard della pagina
+  if(goto_step2 === false){
     
-  });
+    //nascondo i contenuti degli altri step
+    $('.step1').show();
+    $('.step2').hide();
+    $('.step3').hide();
+    $('.step4').hide();
+    
+    
+    //carico l'elenco completo dei clienti
+    var clienti = JSON.parse(localStorage.getItem('clienti'));
+    
+    //imposto il titolo
+    $('#titolo').html( 'Selezione Cliente');
+  
+    //ciclo l'elenco dei clienti
+    search = "";
+    $.each( clienti, function( id, cliente ){
+      search += "<li>";
+        search += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ btoa(cliente.ragione_sociale) +"','"+ cliente.codice_pagamento +"');\" >";
+          search += cliente.ragione_sociale + " - " + cliente.codice_cliente;
+        search += "</a>";
+      search += "</li>";
+    });
+  
+    $('#search_customer').html( search );
+    $('#search_customer').listview( "refresh" );
+    $('#search_customer').trigger( "updatelayout");
+    
+  
+    //istanzio il filtro
+    $( "#search_customer" ).on( "filterablebeforefilter", function ( e, data ) {
+      var $ul = $( this ),
+          $input = $( data.input ),
+          value = $input.val(),
+          html = "";
+          $ul.html( "" );
+          
+      //effettuo la ricerca dopo aver inserito almeno 3 caratteri
+      if ( (value && value.length >= 3) || value === "" ){
+        
+        $ul.html( "<li><div class='ui-loader'><span class='ui-icon ui-icon-loading'></span></div></li>" );
+        $ul.listview( "refresh" );
+        
+        //recupero le info dell'agente
+        var clienti = JSON.parse(localStorage.getItem('clienti'));
+  
+        //ciclo l'elenco dei clienti
+        html = "";
+        $.each( clienti, function( id, cliente ){
+          html += "<li>";
+            html += "<a href=\"javascript:void(0);\" onClick=\"creaOrdine_AggiungiCliente('"+ cliente.codice_cliente +"','"+ btoa(cliente.ragione_sociale) +"','"+ cliente.codice_pagamento +"');\" >";
+              html += cliente.ragione_sociale + " - " + cliente.codice_cliente;
+            html += "</a>";
+          html += "</li>";
+        });
+  
+        $ul.html( html );
+        $ul.listview( "refresh" );
+        $ul.trigger( "updatelayout");
+  
+      }
+      
+    });    
+    
+  }else{
+    
+    //reimposto il flag per il reindirizzamento
+    ordine.da_lista_bozze = '0';
+    var ordine_json = JSON.stringify(ordine);
+    localStorage.setItem('ordine', ordine_json);
+    
+    //vado allo step successivo
+    ordiniCreazioneStep2();
+    
+  }
   
 });
 
@@ -513,12 +542,14 @@ function creaOrdine_AggiungiCliente(codice_cliente, ragione_sociale, codice_paga
   var ragione_sociale_decoded = atob(ragione_sociale);
   
   //creo l'array e lo converto in json
-  var ordine = { 'agente_codice': agente.codice,
-                'agente_nome': agente.nome + " " + agente.cognome,
-                'cliente_codice': codice_cliente,
-                'cliente_ragionesociale': ragione_sociale_decoded,
-                'cliente_codicepagamento': codice_pagamento
-              };
+  var ordine = {
+    'bozza_id': '',
+    'agente_codice': agente.codice,
+    'agente_nome': agente.nome + " " + agente.cognome,
+    'cliente_codice': codice_cliente,
+    'cliente_ragionesociale': ragione_sociale_decoded,
+    'cliente_codicepagamento': codice_pagamento
+  };
   var ordine_json = JSON.stringify(ordine);
   
   //salvo il json nel local storage
@@ -542,6 +573,12 @@ function ordiniCreazioneStep2(){
   $('.step3').hide();
   $('.step4').hide();
   
+  //se ho caricato i dati da una bozza impedisco il passaggio allo step precedente
+  if(localStorage.getItem('ordine') !== null){   
+    ordine = JSON.parse(localStorage.getItem('ordine'));
+    if(ordine.bozza_id !== '') $('.step2 .back').hide();
+  }
+  
   //modifico title
   $('#titolo').html( 'Creazione Righe Ordine');
   
@@ -551,8 +588,41 @@ function ordiniCreazioneStep2(){
   
   //funzione per creare le righe nella tabella
   for (i = 0; i < NUMERO_RIGHE_ORDINE; i++) { 
+    
     creaRigheOrdine(i);
-  }    
+    
+    //se ho caricato i dati da una bozza imposto la visualizzazione
+    if(ordine.bozza_id !== ''){
+      
+      $.each( ordine.righe, function( id_riga, riga ){
+        
+        if(i == (id_riga-1)){
+          
+          $("#codice_" + i).val( riga.codice );
+          //$("#view_codice_" + id_riga).val();
+          //$("#descrizione_" + id_riga).val();
+          //$("#taglia_" + id_riga).val();
+          //$("#colore_" + id_riga).val();
+          //$("#min-qta_" + id_riga).val();
+          //$("#max-sconto_" + id_riga).val();
+          //$("#tipo-sconto_" + id_riga).val();
+          //$("#view_descrizione_" + id_riga).val();
+          //$("#view_taglia_" + id_riga).val();
+          //$("#view_colore_" + id_riga).val();
+          //$("#prezzo_" + id_riga).val();
+          //$("#qta_" + id_riga).val();
+          //$("#omaggio_" + id_riga).val();
+          //$("#sconto_" + id_riga).val();
+          
+        }
+        
+      });
+      
+      //onChange=\"ricalcolaTotali(" + id_riga + ");\" >"
+    }
+    
+  }
+  
   //definisco la dimensione delle colonne
   $('table#righe-ordine tr td').eq(0).css('width','1%');
   $('table#righe-ordine tr td').eq(1).css('width','2%');
@@ -564,7 +634,7 @@ function ordiniCreazioneStep2(){
   $('table#righe-ordine tr td').eq(7).css('width','12%');
   $('table#righe-ordine tr td').eq(8).css('width','15%');
   
-};
+}
 
 function creaRigheOrdine(id_riga) {
   
@@ -1603,31 +1673,26 @@ $( document ).on( "pagecreate", "#ordiniBozze", function() {
   var bozze = JSON.parse(localStorage.getItem('ordini_bozze'));
   //console.log(bozze);
   
-  //nascondo i campi del dettaglio
-  //$('#reloadListaOrdini').hide();
-  //$('#numero_ordine').hide();
-  //$('#dettaglio_ordine').hide();
-  
   //li mostro a video
   var list = "<ul id=\"search_item\" data-role=\"listview\" >";
   
-  $.each( bozze, function( id, bozza ){
+  $.each( bozze, function( id, bozza ){    
     list += "<li>";
       list += "<a href=\"javascript:void(0);\" onClick=\"selezionaBozza('"+ id +"');\" >";
         
-        var ragione_sociale = bozza.cliente.ragione_sociale;
-        var data_bozza = date_format(ordine.data_ordine.substring(0, 10), 'yyyy-mm-dd', 'dd/mm/yyyy');
-        var numero_ordine = ordine.numero_ordine;
-        var importo = number_format(ordine.importo,2,',','.');
+        var ragione_sociale = bozza.cliente_ragionesociale;
+        var data_bozza = date_format(bozza.bozza_aggiornamento.substring(0, 8), 'yyyymmdd', 'dd/mm/yyyy');
+        var ora_bozza = time_format(bozza.bozza_aggiornamento.substring(8, 14), 'hhiiss', 'hh:ii:ss');
+        var numero_righe = bozza.numero_righe;
         
         //flexbox grid
         list += "<div class=\"row\">";
           
           if(ragione_sociale === null) ragione_sociale = "NUOVO CLIENTE";
           list += "<div class=\"col-xs-6\">" + ragione_sociale + "</div>";
-          list += "<div class=\"col-xs-2\">" + numero_ordine + "</div>";
-          list += "<div class=\"col-xs-2\">" + data_ordine + "</div>";        
-          list += "<div class=\"col-xs-2\" align=right >" + importo + " &euro;</div>";
+          list += "<div class=\"col-xs-2\">" + data_bozza + "</div>";
+          list += "<div class=\"col-xs-2\">" + ora_bozza + "</div>";        
+          list += "<div class=\"col-xs-2\">" + numero_righe + " righe</div>";
         
         list += "</div>";
         
@@ -1641,85 +1706,49 @@ $( document ).on( "pagecreate", "#ordiniBozze", function() {
   $('#titolo').html('Elenco Bozze Ordine');
 
   //mostro il contenuto
-  $('#elenco_ordini').html( list );
-  $('#elenco_ordini').show();
+  $('#elenco_bozze').html( list );
+  $('#elenco_bozze').show();
   
   
 });
 
-function dettaglioOrdine(id_ordine){
+function selezionaBozza(id_bozza){
   
-  //nascondo la lista ordini
-  $('#elenco_ordini').hide();
-  
-  //recupero i dati relativi all'ordine
-  var ordini = JSON.parse(localStorage.getItem('ordini_storico'));
-  var ordine_selezionato = [];
-  $.each( ordini, function( id, ordine ){
-    if(id == id_ordine){
-      ordine_selezionato = ordine;
+  //recupero i dati relativi alla bozza
+  var bozze = JSON.parse(localStorage.getItem('ordini_bozze'));
+  var bozza_selezionata = [];
+  $.each( bozze, function( id, bozza ){
+    if(id == id_bozza){
+      bozza_selezionata = bozza;
       return false;//esco dal ciclo
     }
   });
   
-  //mostro il titolo
-  $('#titolo').html('Dettaglio Ordine');
-  $('#numero_ordine').html('<br/>Ordine N. ' + ordine_selezionato.numero_ordine);
-  $('#numero_ordine').show();
-  $('#reloadListaOrdini').show();
+  //imposto i campi del form ordine con i dati della bozza
   
-  //contenuto ordine (testata)
-  var ord = "";
-  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>DATA ORDINE:</b></div><div class=\"col-xs-8\">" + date_format(ordine_selezionato.data_ordine.substring(0, 10), 'yyyy-mm-dd', 'dd/mm/yyyy') + "</div></div>";
-  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>DATA CONSEGNA:</b></div><div class=\"col-xs-8\">" + date_format(ordine_selezionato.data_consegna, 'yyyy-mm-dd', 'dd/mm/yyyy') + "</div></div>";
-  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>IMPORTO:</b></div><div class=\"col-xs-8\">" + number_format(ordine_selezionato.importo, 2, ',','.') + "&euro;</div></div>";
+  //tengo in memoria un solo ordine, cancello eventuali ordini precedenti
+  if(localStorage.getItem('ordine') !== null){
+    localStorage.removeItem('ordine');
+  }
   
-  tipo_pagamento_array = ordine_selezionato.tipo_pagamento.split("|");
-  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>PAGAMENTO:</b></div><div class=\"col-xs-8\">" + tipo_pagamento_array[1] + "</div></div>";
-  ord+= "<div class=\"row\"><div class=\"col-xs-4\"><b>NOTE:</b></div><div class=\"col-xs-8\">" + ordine_selezionato.note + "</div></div>";
+  //creo l'array ordine
+  var ordine = {};
+  ordine.da_lista_bozze = '1';
+  ordine.bozza_id = bozza_selezionata.bozza_id;
+  ordine.agente_codice = bozza_selezionata.agente_codice;
+  ordine.agente_nome = bozza_selezionata.agente_nome;
+  ordine.cliente_codice = bozza_selezionata.cliente_codice;
+  ordine.cliente_ragionesociale = bozza_selezionata.cliente_ragionesociale;
+  ordine.cliente_codicepagamento = bozza_selezionata.cliente_codicepagamento;
+  ordine.righe = bozza_selezionata.righe;
+  ordine.righe.numero_righe = bozza_selezionata.numero_righe;
+  console.log(ordine);
   
-  ord+= "<br/>";
+  //salvo l'ordine in locale
+  var ordine_json = JSON.stringify(ordine);
+  localStorage.setItem('ordine', ordine_json);
   
-  //contenuto ordine (righe)
-  ord+= "<div class=\"row tbl_head\">";
-    ord+= "<div class=\"col-xs-2\">CODICE</div>";
-    ord+= "<div class=\"col-xs-3\">DESCRIZIONE</div>";
-    ord+= "<div class=\"col-xs-2\">TGL/COL</div>";
-    ord+= "<div class=\"col-xs-1\">PRZ</div>";
-    ord+= "<div class=\"col-xs-1\">QT&Agrave;</div>";
-    ord+= "<div class=\"col-xs-1\">SC %</div>";
-    ord+= "<div class=\"col-xs-2\">TOTALE</div>";
-  ord+= "</div>";
-    
-  $.each( ordine_selezionato.righe, function( id_riga, riga ){
+  //vado alla pagina ordini
+  location.href="ordini_creazione.html";
 
-    ord+= "<div class=\"row tbl_body\">";
-      ord+= "<div class=\"col-xs-2\">" + riga.codice_articolo + "</div>";
-      ord+= "<div class=\"col-xs-3\">" + riga.descrizione_articolo + "</div>";
-      
-      var tgl_col = "";
-      if(riga.taglia !== "") tgl_col+= riga.taglia;
-      if((riga.taglia !== "" && riga.colore !== "") || (riga.taglia === "" && riga.colore === "")) tgl_col+= " - ";
-      if(riga.colore !== "") tgl_col+= riga.colore;
-      
-      ord+= "<div class=\"col-xs-2\" align=center>" + tgl_col + "</div>";
-      ord+= "<div class=\"col-xs-1\" align=right>" + number_format(riga.prezzo_listino,2,',','.') + "</div>";
-      ord+= "<div class=\"col-xs-1\" align=right>" + riga.quantita + "</div>";
-      ord+= "<div class=\"col-xs-1\" align=right>" + riga.sconto + "</div>";
-      ord+= "<div class=\"col-xs-2\" align=right>" + number_format(riga.valore_netto,2,',','.') + "</div>";
-    ord+= "</div>";
-    
-  });
-  
-  ord+= "<div class=\"row tbl_foot\">";
-    ord+= "<div class=\"col-xs-10\" align=right >TOTALE</div>";
-    ord+= "<div class=\"col-xs-2\" align=right >" + number_format(ordine_selezionato.importo, 2, ',','.') + "</div>";
-  ord+= "</div>";
-  
-  
-  //mostro il dettalgio ordine
-  $('#dettaglio_ordine').html( ord );
-  $('#dettaglio_ordine').fadeIn(800);
-  
-  
 }

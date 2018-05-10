@@ -76,12 +76,41 @@ function date_format(date, in_format, out_format){
         y = date_array[0];
         m = date_array[1];
         d = date_array[2];
+    }else if(in_format == 'yyyymmdd'){
+        y = date.substring(0,4);
+        m = date.substring(4,6);
+        d = date.substring(6,8);
     }
     
     //gestione output    
     if(out_format == 'dd/mm/yyyy') date_new = d + "/" + m + "/" + y;
     
     return date_new;
+
+}
+
+//funzione per la formattazione di un'orario
+function time_format(time, in_format, out_format){
+    
+    //inizializzazione
+    var time_array = [];
+    var h = "";
+    var i = "";
+    var s = "";
+    var time_new = "";
+    
+    
+    //gestione input
+    if(in_format == 'hhiiss'){
+        h = time.substring(0,2);
+        i = time.substring(2,4);
+        s = time.substring(4,6);
+    }
+    
+    //gestione output    
+    if(out_format == 'hh:ii:ss') time_new = h + ":" + i + ":" + s;
+    
+    return time_new;
 
 }
 
