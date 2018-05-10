@@ -39,6 +39,10 @@
 			<!-- parte di destra -->
 			<div class="buttons">
 				
+				<span class=step1>
+					<img src="img/arrow-left.png" class="btn-header-right" onClick="location.href='home_ordini.html';" >
+				</span>
+				
 				<span class=step2>
 					<img src="img/arrow-left.png" class="btn-header-right" onClick="location.reload();" >
 					<img src="img/check.png" class="btn-header-right" onClick="creaOrdine_AggiungiRighe();" >	
@@ -265,7 +269,7 @@
 		</div>		
 		
 		<!-- popup segnalazione disponibilità -->
-		<div data-role="popup" id="popupDisponibilita" data-dismissible="false" >
+		<div data-role="popup" id="popupDisponibilita" class="popup-ordine" data-dismissible="false" >
 			<a href="javascript:void(0);" onClick="popupPromozioni( $('#id_riga_disponibilita').val(), JSON.parse($('#articolo_json_disponibilita').val()), 'popup' )" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
 			<div data-role="header" style="background-color: #ee0000;" >
 				<h1 class='nd-title'>ARTICOLO NON DISPONIBILE</h1>
@@ -278,7 +282,7 @@
 		</div>		
 		
 		<!-- popup promozioni -->
-		<div data-role="popup" id="popupPromozioni" data-dismissible="false" >
+		<div data-role="popup" id="popupPromozioni" class="popup-ordine" data-dismissible="false" >
 			<div data-role="header" >
 				<h1 class='nd-title'>PROMOZIONI DISPONIBILI</h1>
 			</div>					
@@ -289,7 +293,7 @@
 		</div>		
 
 		<!-- popup selezione taglie colori -->
-		<div data-role="popup" id="popupTaglieColori" data-dismissible="false" >
+		<div data-role="popup" id="popupTaglieColori" class="popup-ordine" data-dismissible="false" >
 			<!-- <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a> -->
 			<div data-role="header">
 				<h1 class='nd-title'>SELEZIONE TAGLIA / COLORE</h1>
@@ -317,7 +321,7 @@
 		</div>		
 		
 		<!-- popup segnalazione -->
-		<div data-role="popup" id="popupSegnalazione" data-dismissible="false" >
+		<div data-role="popup" id="popupSegnalazione" class="popup-ordine" data-dismissible="false" >
 			<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
 			<div data-role="header">
 				<h1 class='nd-title'>ATTENZIONE !</h1>

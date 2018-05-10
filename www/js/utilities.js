@@ -23,9 +23,14 @@ function today(){
     var dd = date.getDate();
     var mm = date.getMonth()+1; //January is 0!
     var yyyy = date.getFullYear();
+    
+    //padding di mese e giorno
+    if(mm<10) mm = '0' + mm;
+    if(dd<10) dd = '0' + dd;
+    
     var current_date = yyyy + '' + mm + '' + dd;
     
-    return current_date;
+    return current_date*1;
 
 }
 

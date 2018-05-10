@@ -252,6 +252,9 @@ table#righe-ordine td .ui-input-text{
 
 
 /* popup */
+.popup-ordine{
+    min-width: 800px;
+}
 .ui-popup .ui-header .ui-title{
     margin:0px 18px;
     line-height: 1.4em;
