@@ -165,6 +165,7 @@ body { opacity: 0; }
     /*inserire l'elenco degli id delle pagine da mostrare solo landscape*/
     #ordiniCreazionePage { display:none; }
     #ordiniStorico { display:none; }
+    #ordiniBozze { display:none; }
     
     #warning-message-portrait {
         text-align:center;
@@ -252,9 +253,6 @@ table#righe-ordine td .ui-input-text{
 
 
 /* popup */
-.popup-ordine{
-    min-width: 800px;
-}
 .ui-popup .ui-header .ui-title{
     margin:0px 18px;
     line-height: 1.4em;

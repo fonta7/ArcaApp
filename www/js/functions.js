@@ -592,33 +592,39 @@ function ordiniCreazioneStep2(){
     creaRigheOrdine(i);
     
     //se ho caricato i dati da una bozza imposto la visualizzazione
-    if(ordine.bozza_id !== ''){
+    id_riga = i+1;
+    if(ordine.bozza_id !== '' && typeof ordine.righe[id_riga] !== 'undefined' ){
       
-      $.each( ordine.righe, function( id_riga, riga ){
-        
-        if(i == (id_riga-1)){
-          
-          $("#codice_" + i).val( riga.codice );
-          //$("#view_codice_" + id_riga).val();
-          //$("#descrizione_" + id_riga).val();
-          //$("#taglia_" + id_riga).val();
-          //$("#colore_" + id_riga).val();
-          //$("#min-qta_" + id_riga).val();
-          //$("#max-sconto_" + id_riga).val();
-          //$("#tipo-sconto_" + id_riga).val();
-          //$("#view_descrizione_" + id_riga).val();
-          //$("#view_taglia_" + id_riga).val();
-          //$("#view_colore_" + id_riga).val();
-          //$("#prezzo_" + id_riga).val();
-          //$("#qta_" + id_riga).val();
-          //$("#omaggio_" + id_riga).val();
-          //$("#sconto_" + id_riga).val();
-          
-        }
-        
-      });
+      var riga = ordine.righe[id_riga];
       
-      //onChange=\"ricalcolaTotali(" + id_riga + ");\" >"
+      //compilo i campi della riga
+      $('#codice_' + i).val( riga.codice );
+      $('#descrizione_' + i).val( riga.descrizione );
+      $('#taglia_' + i).val( riga.taglia );
+      $('#colore_' + i).val( riga.colore );
+      
+      //campi relativi alle qta e alle scontistiche
+      $("#qta_" + i).val( riga.qta );
+      if(riga.omaggio=="1")  $("#omaggio_" + i).prop( "checked", true );
+      $("#sconto_" + i).val( riga.sconto );
+      
+      //riformatto il prezzo
+      prezzo = number_format( riga.prezzo, 2, '.', '');
+      $('#prezzo_' + i).val(prezzo);
+      
+      //imposto i campi descrittivi (codice e descrizione) e nascondo i campi codice
+      $('#codice_' + i).hide();
+      $('#descrizione_' + i).hide();
+      $('#view_codice_' + i).html( riga.codice );
+      $('#view_descrizione_' + i).html( riga.descrizione );
+      
+      //modifico l'icona a inizio riga per consentire il reset della stessa
+      $('#ricerca_riga_' + i).hide();
+      $('#reset_riga_' + i).show();  
+      
+      //ricalcolo i totali
+      //ricalcolaTotali(i);
+      
     }
     
   }
