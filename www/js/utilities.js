@@ -34,6 +34,28 @@ function today(){
 
 }
 
+//funzione per restituire il time
+function current_datetime(){
+    
+    //recupero la data odierna
+    var date = new Date();
+    var hh = date.getHours();
+    var ii = date.getMinutes();
+    var ss = date.getSeconds();
+    
+    //padding di mese e giorno
+    if(hh<10) hh = '0' + hh;
+    if(ii<10) ii = '0' + ii;
+    if(ss<10) ss = '0' + ss;
+    
+    var current_date = today();
+    var current_time = hh + '' + ii + '' + ss;
+    var datetime = current_date + '' + current_time;
+    
+    return datetime*1;
+    
+}
+
 //funzione per la formattazione di un numero (come PHP)
 function number_format (number, decimals, dec_point, thousands_sep) {
     // Strip all characters but numerical ones.

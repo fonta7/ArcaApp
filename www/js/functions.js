@@ -544,6 +544,8 @@ function creaOrdine_AggiungiCliente(codice_cliente, ragione_sociale, codice_paga
   //creo l'array e lo converto in json
   var ordine = {
     'bozza_id': '',
+    'bozza_creazione': '',
+    'bozza_aggiornamento': '',
     'agente_codice': agente.codice,
     'agente_nome': agente.nome + " " + agente.cognome,
     'cliente_codice': codice_cliente,
@@ -622,10 +624,13 @@ function ordiniCreazioneStep2(){
       $('#ricerca_riga_' + i).hide();
       $('#reset_riga_' + i).show();  
       
-      //ricalcolo i totali
-      //ricalcolaTotali(i);
+      //ricalcolo i totali di riga
+      ricalcolaTotaliRiga(i);
       
     }
+    
+    //ricalcolo i totali ordine
+    ricalcolaTotaliOrdine();
     
   }
   
@@ -1222,27 +1227,29 @@ function ricalcolaTotaliOrdine(){
   //ciclo le righe per trovare la prima senza codice articolo
   totale_lordo = totale_netto = 0;
   righe_counter = 0;
-  for (i = 0; i < NUMERO_RIGHE_ORDINE; i++) { 
+  for (id = 0; id < NUMERO_RIGHE_ORDINE; id++) { 
     
     totale_riga_lordo = totale_riga_netto = 0;
-    if( $('#codice_' + i).val() !== ""){
+    if( $('#codice_' + id).val() !== ""){
       
-      prezzo = $('#prezzo_' + i).val();
-      qta = $('#qta_' + i).val();
-
+      prezzo = $('#prezzo_' + id).val();
+      qta = $('#qta_' + id).val();
+      //alert(prezzo + ' - ' + qta);
+      
       totale_riga_lordo = prezzo * qta;
-      totale_riga_netto = $('#totale_' + i).val() * 1;
-
+      totale_riga_netto = $('#totale_' + id).val() * 1;        
+        
     }
     
     totale_lordo += totale_riga_lordo;    
     totale_netto += totale_riga_netto;
     
   }
-
+  
   //riformatto i totali
   totale_lordo = number_format(totale_lordo, 2, '.', '');
   totale_netto = number_format(totale_netto, 2, '.', '');
+  //alert(totale_lordo + ' - ' + totale_netto);
   
   //mostro a video i totali
   $('#totale_lordo').val(totale_lordo);
@@ -1262,8 +1269,35 @@ function ricalcolaTotaleRiga(id_riga){
 
 }
 
+//funzione per verificare il contenuto dell'ordine prima dell'apertura del popup
+function openPopupSalvataggioOrdine(){
+  
+  //verifico che sia stata inserita almeno una riga
+  var check = false;
+  for (id = 0; id < NUMERO_RIGHE_ORDINE; id++) { 
+    
+    if( $('#codice_' + id).val() !== "" && $('#qta_' + id).val() !== "" ){
+      check = true;
+      break;
+    }
+
+  }
+  
+  if(check === true){
+    $('#popupSalvataggioOrdine').popup('open', 'pop');
+  }else{
+    $("#popupSegnalazioneContent").html('Inserire almeno una riga.');
+    $("#popupSegnalazione").popup("open", "pop");
+  }
+  
+  
+}
+
 //funzione per aggiungere le righe impostate all'ordine
-function creaOrdine_AggiungiRighe(){
+function creaOrdine_AggiungiRighe(tipo){
+  
+  //chiudo il popup
+  $("#popupSalvataggioOrdine").popup("close", "pop");
   
   //ciclo le righe per trovare la prima senza codice articolo
   var righe = {};
@@ -1296,15 +1330,50 @@ function creaOrdine_AggiungiRighe(){
     }
     
   }
-  
-  //aggiungo il numero di righe inserite
-  righe.numero_righe = righe_counter;
 
   //recupero i dati dell'ordine salvati
-  var ordine = JSON.parse(localStorage.getItem('ordine'));  
+  var ordine = JSON.parse(localStorage.getItem('ordine'));
+  
+  //aggiungo il numero di righe inserite
+  ordine.numero_righe = righe_counter;
   
   //aggiungo i dati relativi alle righe ordine e lo risalvo
   ordine.righe = righe;
+  
+  //se il tipo è bozza
+  if(tipo == "bozza"){
+    
+    //ciclo le bozze presenti
+    var bozze = JSON.parse(localStorage.getItem('ordini_bozze'));
+    var numero_bozze = 1;
+    var id_bozza = 0;
+    $.each( bozze, function( id, bozza ){
+      
+      if(ordine.bozza_id !== "" && ordine.bozza_id == bozza.bozza_id){
+        id_bozza = id;
+      }
+      
+      numero_bozze++;
+    });
+    
+    data_aggiornamento = current_datetime();
+    ordine.bozza_aggiornamento = '' + data_aggiornamento;//trasformo in stringa
+    
+    //verifico se ho trovato la bozza nell'elenco oppure se devo crearla
+    if(id_bozza !== 0){
+      bozze[id_bozza] = ordine;            
+    }else{
+      ordine.bozza_id = ordine.agente_codice + '_' + ordine.bozza_aggiornamento + '_' + btoa(ordine.cliente_ragionesociale) + '.json';
+      ordine.bozza_creazione = ordine.bozza_aggiornamento;
+      bozze[numero_bozze] = ordine;
+    }
+    var bozze_json = JSON.stringify(bozze);
+    localStorage.setItem('ordini_bozze', bozze_json);
+    
+    //nascondo il tasto per tornare indietro
+    $('.step2 .back').hide();
+    
+  }
   
   //salvo in console le righe
   console.log(ordine);
@@ -1313,9 +1382,9 @@ function creaOrdine_AggiungiRighe(){
   var ordine_json = JSON.stringify(ordine);
   localStorage.setItem('ordine', ordine_json);
   
-  //reindirizzo allo step3
-  ordiniCreazioneStep3();
-
+  //se il tipo è ordine reindirizzo allo step3
+  if(tipo == "ordine") ordiniCreazioneStep3();
+  
 }
 
 
@@ -1741,13 +1810,15 @@ function selezionaBozza(id_bozza){
   var ordine = {};
   ordine.da_lista_bozze = '1';
   ordine.bozza_id = bozza_selezionata.bozza_id;
+  ordine.bozza_creazione = bozza_selezionata.bozza_creazione;
+  ordine.bozza_aggiornamento = bozza_selezionata.bozza_aggiornamento;
   ordine.agente_codice = bozza_selezionata.agente_codice;
   ordine.agente_nome = bozza_selezionata.agente_nome;
+  ordine.numero_righe = bozza_selezionata.numero_righe;
   ordine.cliente_codice = bozza_selezionata.cliente_codice;
   ordine.cliente_ragionesociale = bozza_selezionata.cliente_ragionesociale;
   ordine.cliente_codicepagamento = bozza_selezionata.cliente_codicepagamento;
   ordine.righe = bozza_selezionata.righe;
-  ordine.righe.numero_righe = bozza_selezionata.numero_righe;
   console.log(ordine);
   
   //salvo l'ordine in locale

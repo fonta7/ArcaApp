@@ -46,7 +46,7 @@
 				
 				<span class=step2>
 					<img src="img/arrow-left.png" class="btn-header-right back" onClick="location.reload();" >
-					<img src="img/check.png" class="btn-header-right" onClick="creaOrdine_AggiungiRighe();" >	
+					<img src="img/check.png" class="btn-header-right" onClick="openPopupSalvataggioOrdine();" >	
 				</span>
 				
 				<span class=step3>
@@ -329,6 +329,23 @@
 			</div>					
 			<div data-role="content">
 				<span id="popupSegnalazioneContent" ></span>
+			</div>
+		</div>
+		
+		<!-- popup salvataggio bozza - conclusione ordine -->
+		<div data-role="popup" id="popupSalvataggioOrdine" class="popup-ordine" data-dismissible="false" >
+			<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			<div data-role="header">
+				<h1 class='nd-title'>SALVA BOZZA o CONCLUDI ORDINE</h1>
+			</div>					
+			<div data-role="content">
+				
+				<form>
+					<button type="button" id="" class="ui-btn ui-btn-raised clr-primary" onClick="creaOrdine_AggiungiRighe('bozza');" >SALVA BOZZA</button>
+					<br/>
+					<button type="button" id="" class="ui-btn ui-btn-raised clr-primary" onClick="creaOrdine_AggiungiRighe('ordine');" >CONCLUDI L'ORDINE</button>
+				</form>
+				
 			</div>
 		</div>
 		
