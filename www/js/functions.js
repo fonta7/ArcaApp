@@ -325,6 +325,9 @@ function importOrdiniStorico(codice_agente, token){
         
         //mostro il messaggio di importazione
         $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO ORDINI</h2></li>");
+        
+        //elimino dal local storage eventuale ordine
+        localStorage.removeItem('ordine');
 
         //lancio lo step successivo di importazione
         importOrdiniBozze(codice_agente, token);
@@ -350,7 +353,7 @@ function importOrdiniBozze(codice_agente, token){
   
   //recupero l'elenco delle bozze ordini attualmente presenti nell'app per la sincronizzazione
   var bozze_app = localStorage.getItem('ordini_bozze');
-  
+  console.log(bozze_app);
   
   $.ajax({
     url: API_PATH + 'ordini.php',
@@ -1539,6 +1542,7 @@ function esportazioneOrdine(){
   
   //recupero l'ordine corrente
   var json_ordine = localStorage.getItem('ordine');
+  var ordine = JSON.parse(json_ordine);
 
   var codice_agente = agente.codice;
   var token = agente.token;
@@ -1570,6 +1574,30 @@ function esportazioneOrdine(){
         
         //mostro il messaggio di importazione
         $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>ORDINE ESPORTATO CORRETTAMENTE</h2></li>");       
+        
+        //verifico se l'ordine era stato generato da una bozza
+        if(ordine.bozza_id !== ""){
+          
+          //rimuovo la bozza dalla quale è stato generato l'ordine       
+          var bozze = JSON.parse(localStorage.getItem('ordini_bozze'));
+          console.log(bozze);
+          
+          var bozze_new = {};
+          var bozze_counter = 1;
+          $.each( bozze, function( id, bozza ){
+              
+              if(ordine.bozza_id != bozza.bozza_id){               
+                  bozze_new[bozze_counter] = bozza;
+                  bozze_counter++;
+              }
+              
+          });
+          
+          console.log(bozze_new);
+          var bozze_json = JSON.stringify(bozze_new);
+          localStorage.setItem('ordini_bozze', bozze_json);
+          
+        }
         
         //rimuovo l'ordine
         localStorage.removeItem('ordine');
