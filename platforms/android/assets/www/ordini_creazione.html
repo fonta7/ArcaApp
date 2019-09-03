@@ -1,8 +1,10 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<title>Arca Distribution - Selezione Cliente</title>
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	
+	<title>Arca Distribution - Selezione Cliente</title>
 
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
@@ -11,7 +13,6 @@
 	<link rel="stylesheet" href="css/nativedroid2.css" />
 	<link rel="stylesheet" href="css/nativedroid2.color.light-blue.css" />
 	<link rel="stylesheet" href="css/custom.css" />
-
 </head>
 <body>
 
@@ -39,9 +40,13 @@
 			<!-- parte di destra -->
 			<div class="buttons">
 				
+				<span class=step1>
+					<img src="img/arrow-left.png" class="btn-header-right" onClick="location.href='home_ordini.html';" >
+				</span>
+				
 				<span class=step2>
-					<img src="img/arrow-left.png" class="btn-header-right" onClick="location.reload();" >
-					<img src="img/check.png" class="btn-header-right" onClick="creaOrdine_AggiungiRighe();" >	
+					<img src="img/arrow-left.png" class="btn-header-right back" onClick="location.reload();" >
+					<img src="img/check.png" class="btn-header-right" onClick="openPopupSalvataggioOrdine();" >	
 				</span>
 				
 				<span class=step3>
@@ -265,7 +270,7 @@
 		</div>		
 		
 		<!-- popup segnalazione disponibilità -->
-		<div data-role="popup" id="popupDisponibilita" data-dismissible="false" >
+		<div data-role="popup" id="popupDisponibilita" class="popup-ordine" data-dismissible="false" >
 			<a href="javascript:void(0);" onClick="popupPromozioni( $('#id_riga_disponibilita').val(), JSON.parse($('#articolo_json_disponibilita').val()), 'popup' )" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
 			<div data-role="header" style="background-color: #ee0000;" >
 				<h1 class='nd-title'>ARTICOLO NON DISPONIBILE</h1>
@@ -278,7 +283,7 @@
 		</div>		
 		
 		<!-- popup promozioni -->
-		<div data-role="popup" id="popupPromozioni" data-dismissible="false" >
+		<div data-role="popup" id="popupPromozioni" class="popup-ordine" data-dismissible="false" >
 			<div data-role="header" >
 				<h1 class='nd-title'>PROMOZIONI DISPONIBILI</h1>
 			</div>					
@@ -289,7 +294,7 @@
 		</div>		
 
 		<!-- popup selezione taglie colori -->
-		<div data-role="popup" id="popupTaglieColori" data-dismissible="false" >
+		<div data-role="popup" id="popupTaglieColori" class="popup-ordine" data-dismissible="false" >
 			<!-- <a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a> -->
 			<div data-role="header">
 				<h1 class='nd-title'>SELEZIONE TAGLIA / COLORE</h1>
@@ -317,13 +322,30 @@
 		</div>		
 		
 		<!-- popup segnalazione -->
-		<div data-role="popup" id="popupSegnalazione" data-dismissible="false" >
+		<div data-role="popup" id="popupSegnalazione" class="popup-ordine" data-dismissible="false" >
 			<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
 			<div data-role="header">
 				<h1 class='nd-title'>ATTENZIONE !</h1>
 			</div>					
 			<div data-role="content">
 				<span id="popupSegnalazioneContent" ></span>
+			</div>
+		</div>
+		
+		<!-- popup salvataggio bozza - conclusione ordine -->
+		<div data-role="popup" id="popupSalvataggioOrdine" class="popup-ordine" data-dismissible="false" >
+			<a href="#" data-rel="back" data-role="button" data-theme="a" data-icon="delete" data-iconpos="notext" class="ui-btn-right">Close</a>
+			<div data-role="header">
+				<h1 class='nd-title'>SALVA BOZZA o CONCLUDI ORDINE</h1>
+			</div>					
+			<div data-role="content">
+				
+				<form>
+					<button type="button" id="" class="ui-btn ui-btn-raised clr-primary" onClick="creaOrdine_AggiungiRighe('bozza');" >SALVA BOZZA</button>
+					<br/>
+					<button type="button" id="" class="ui-btn ui-btn-raised clr-primary" onClick="creaOrdine_AggiungiRighe('ordine');" >CONCLUDI L'ORDINE</button>
+				</form>
+				
 			</div>
 		</div>
 		

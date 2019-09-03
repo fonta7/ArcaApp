@@ -16,47 +16,14 @@
 </head>
 <body>
 
-	<div data-role="page" id="loginPage" >
+	<div data-role="page" id="testPage" >
 
-		<!-- include slide menu -->
-		<!--<nd2-include data-src="menu.left.html"></nd2-include>-->
-
-		<!--<div data-role="header" data-position="fixed"></div>-->
-
-		<!-- login content page -->
-		<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" >
+		<div role="main" class="ui-content" >
 			
-			<!-- logo -->
-			<div class="logo">
-				<img src="img/logo.png" alt="Arca Distribution App" >
-			</div>
-			
-			<!-- login form -->
-			<form id="login" >
 
-				<!-- username -->
-				<label for="text-basic">Utente:</label>
-				<input type="text" id="username" value="" >
-				
-				<!-- password -->
-				<label for="password">Password:</label>
-				<input type="password" id="password" value="" autocomplete="off" >
-				
-				<!-- memorizza password -->
-				<input type="checkbox" name="save_credential" id="save_credential" checked="" >
-				<label for="save_credential">Memorizza i dati di accesso</label>
-				
-				<button type="button" id="login_form_submit" class="ui-btn ui-btn-raised clr-primary" >LOGIN</button>
-				
-				<div class="response_msg"></div>
-				
-			</form>
 
 		</div>
 		
-		<div data-role="footer" data-position="fixed" >
-			<span class="version">1.3.0</span>
-		</div>
 		
 	</div>
 	
@@ -72,8 +39,36 @@
 	<!-- funzioni js -->
 	<script src="js/utilities.js"></script>
 	<script src="js/functions.js"></script>
+    
+    <script src="cordova.js"></script>
+    
+    
+    
+    
+    <script>
+        var search_id = "999_20180510122806_RVNURVNUSUNBIERJIFRFU1Q=.json";
+    
+        //rimuovo la bozza dalla quale è stato generato l'ordine
+        var bozze_json = localStorage.getItem('ordini_bozze');        
+        var bozze = JSON.parse(bozze_json);
+        console.log(bozze);
+        
+        var bozze_new = {};
+        var bozze_counter = 1;
+        $.each( bozze, function( id, bozza ){
+            
+            if(search_id != bozza.bozza_id){               
+                bozze_new[bozze_counter] = bozza;
+                bozze_counter++;
+            }
+            
+        });
+        
+        console.log(bozze_new);
+        //localStorage.setItem('ordine', ordine_json);
+    
+    </script>
 	
-	<script src="cordova.js"></script>
 
 </body>
 </html>

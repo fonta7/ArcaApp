@@ -1,9 +1,11 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-	<title>Arca Distribution - Aggiornamento Dati</title>
+	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-
+	
+	<title>Arca Distribution - Login</title>
+	
 	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
 	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
 	<link rel="stylesheet" href="vendor/waves/waves.min.css" />
@@ -11,46 +13,19 @@
 	<link rel="stylesheet" href="css/nativedroid2.css" />
 	<link rel="stylesheet" href="css/nativedroid2.color.light-blue.css" />
 	<link rel="stylesheet" href="css/custom.css" />
-
 </head>
 <body>
 
-	<div data-role="page" id="exportOrderPage" >
+	<div data-role="page" id="testPage" >
 
-		<!-- include slide menu -->
-		<nd2-include data-src="menu.left.html"></nd2-include>
-
-		<div data-role="header" data-position="fixed">
-			<a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
-			<h1 class="wow fadeIn" data-wow-delay='0.4s'>Esportazione Ordini</h1>
-		</div>
-
-		<!-- login content page -->
-		<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" >
+		<div role="main" class="ui-content" >
 			
-			<!-- login form -->
-			<form id="import" >
-				
-				<div class="button_menu">
-					<button type="button" id="export_form_submit" class="ui-btn ui-btn-raised clr-primary" >
-						<i class='zmdi zmdi-upload'></i> ESPORTA
-					</button>
-				</div>
-				
-				<br/><br/>
-				
-				<!-- lista step importazione -->
-				<ol data-role="listview" data-icon="false" class="response_msg log_export" >
-				</ol>				
-			
-			</form>
+
 
 		</div>
-
+		
+		
 	</div>
-	
-	<!-- blocco funzioni all'attivazioni del loader -->
-	<div class="ui-loader-background"> </div>
 	
 	<!-- inclusioni js obbligatorie -->
 	<script src="js/jquery.min.2.1.4.js"></script>
@@ -64,8 +39,36 @@
 	<!-- funzioni js -->
 	<script src="js/utilities.js"></script>
 	<script src="js/functions.js"></script>
-
-	<script src="cordova.js"></script>
+    
+    <script src="cordova.js"></script>
+    
+    
+    
+    
+    <script>
+        var search_id = "999_20180510122806_RVNURVNUSUNBIERJIFRFU1Q=.json";
+    
+        //rimuovo la bozza dalla quale è stato generato l'ordine
+        var bozze_json = localStorage.getItem('ordini_bozze');        
+        var bozze = JSON.parse(bozze_json);
+        console.log(bozze);
+        
+        var bozze_new = {};
+        var bozze_counter = 1;
+        $.each( bozze, function( id, bozza ){
+            
+            if(search_id != bozza.bozza_id){               
+                bozze_new[bozze_counter] = bozza;
+                bozze_counter++;
+            }
+            
+        });
+        
+        console.log(bozze_new);
+        //localStorage.setItem('ordine', ordine_json);
+    
+    </script>
+	
 
 </body>
 </html>

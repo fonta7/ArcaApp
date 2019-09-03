@@ -23,10 +23,37 @@ function today(){
     var dd = date.getDate();
     var mm = date.getMonth()+1; //January is 0!
     var yyyy = date.getFullYear();
+    
+    //padding di mese e giorno
+    if(mm<10) mm = '0' + mm;
+    if(dd<10) dd = '0' + dd;
+    
     var current_date = yyyy + '' + mm + '' + dd;
     
-    return current_date;
+    return current_date*1;
 
+}
+
+//funzione per restituire il time
+function current_datetime(){
+    
+    //recupero la data odierna
+    var date = new Date();
+    var hh = date.getHours();
+    var ii = date.getMinutes();
+    var ss = date.getSeconds();
+    
+    //padding di mese e giorno
+    if(hh<10) hh = '0' + hh;
+    if(ii<10) ii = '0' + ii;
+    if(ss<10) ss = '0' + ss;
+    
+    var current_date = today();
+    var current_time = hh + '' + ii + '' + ss;
+    var datetime = current_date + '' + current_time;
+    
+    return datetime*1;
+    
 }
 
 //funzione per la formattazione di un numero (come PHP)
@@ -71,12 +98,41 @@ function date_format(date, in_format, out_format){
         y = date_array[0];
         m = date_array[1];
         d = date_array[2];
+    }else if(in_format == 'yyyymmdd'){
+        y = date.substring(0,4);
+        m = date.substring(4,6);
+        d = date.substring(6,8);
     }
     
     //gestione output    
     if(out_format == 'dd/mm/yyyy') date_new = d + "/" + m + "/" + y;
     
     return date_new;
+
+}
+
+//funzione per la formattazione di un'orario
+function time_format(time, in_format, out_format){
+    
+    //inizializzazione
+    var time_array = [];
+    var h = "";
+    var i = "";
+    var s = "";
+    var time_new = "";
+    
+    
+    //gestione input
+    if(in_format == 'hhiiss'){
+        h = time.substring(0,2);
+        i = time.substring(2,4);
+        s = time.substring(4,6);
+    }
+    
+    //gestione output    
+    if(out_format == 'hh:ii:ss') time_new = h + ":" + i + ":" + s;
+    
+    return time_new;
 
 }
 
