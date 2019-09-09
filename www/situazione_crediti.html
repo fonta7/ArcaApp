@@ -1,0 +1,153 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	
+	<title>Arca Distribution - Situazione Crediti</title>
+
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.3.0/css/font-awesome.min.css" />
+	<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css" />
+	<link rel="stylesheet" href="vendor/waves/waves.min.css" />
+	<link rel="stylesheet" href="vendor/wow/animate.css" />
+	<link rel="stylesheet" href="css/nativedroid2.css" />
+	<link rel="stylesheet" href="css/nativedroid2.color.light-blue.css" />
+	<link rel="stylesheet" href="css/custom.css" />
+</head>
+<body>
+
+	<div data-role="page" id="situazioneCreditiPage"  >
+
+		<!-- include slide menu -->
+		<nd2-include data-src="menu.left.html"></nd2-include>
+
+
+
+		<!--//////////-->
+		<!--  HEADER  -->
+		<!--//////////-->
+		<div data-role="header" data-position="fixed">
+			
+			<!-- menu sinistra -->
+			<a href="#leftpanel" class="ui-btn ui-btn-left wow fadeIn" data-wow-delay='0.8s'><i class="zmdi zmdi-menu"></i></a>
+			
+			<!-- titolo e sottotitolo -->
+			<h1 class="wow fadeIn" data-wow-delay='0.4s'>
+				<span id="titolo" class="title">Situazione Crediti</span><br/>
+				<span id="sottotitolo" class="subtitle"></span>
+			</h1>
+			
+			<!-- parte di destra -->
+			<div class="buttons">
+				
+				<span class=step1>
+					<img src="img/arrow-left.png" class="btn-header-right" onClick="location.href='situazione_crediti.html';" >
+				</span>
+				
+			</div>
+			
+		</div>
+
+
+
+		<!--//////////-->
+		<!-- CONTENT  -->
+		<!--//////////-->
+		<div role="main" class="ui-content wow fadeIn" data-inset="false" data-wow-delay="0.2s" >
+			
+			
+			<!-- selezione dato da visualizzare -->
+			<div class="button_menu">
+
+				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary">
+					<i class='zmdi zmdi-money'></i> SCADENZARIO RIBA PER DATA
+				</a>
+						
+				<br/>
+				
+				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary">
+					<i class='zmdi zmdi-money'></i> SCADUTO R.D., BONIFICI ED INSOLUTI PER CLIENTE
+				</a>
+				
+				<br/>
+				
+				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary">
+					<i class='zmdi zmdi-money'></i> SCADUTO R.D., BONIFICI ED INSOLUTI PER DATA
+				</a>
+
+			</div>
+
+
+			<!-- visualizzazione dato -->
+			<div class="step2" >
+
+				<!-- form ricerca -->
+				<form>		
+					
+					<!-- cliente -->
+					<label for="cliente" class="select">Cliente</label>
+					<select id="cliente" ></select>
+					
+					<!-- data da -->
+					<label for="da_data">Da data</label>
+					<input type="date" name="da_data" id="da_data" value="" placeholder="">
+															
+				</form>	
+								
+				<br/>
+					
+				<!-- tabella con righe situazione crediti -->
+				<table id="righe-situazione-crediti" border=0 cellspacing=0 cellpadding=0 width=100% >
+					
+					<!-- header -->
+					<thead>
+						<tr>
+							<th>cliente</th>
+							<th>scadenza</th>
+							<th>incasso</th>
+							<th>importo</th>
+							<th>documento</th>
+						</tr>						
+					</thead>
+					
+					<!-- body -->
+					<tbody></tbody>
+
+				</table>				
+
+
+			</div>
+
+		</div>
+		
+		
+	</div>
+
+	
+	<!-- messaggio rotazione telefono -->	
+	<div id="warning-message-portrait">
+		Ruota il telefono in orizzontale per visualizzare la situazione crediti
+	</div>
+	
+	
+	<!-- blocco funzioni all'attivazioni del loader -->
+	<div class="ui-loader-background"> </div>
+	
+	
+	<!-- inclusioni js obbligatorie -->
+	<script src="js/jquery.min.2.1.4.js"></script>
+	<script src="js/jquery-ui.min.1.11.4.js"></script>
+	<script src="js/jquery.mobile.min.1.4.5.js"></script>
+	<script src="vendor/waves/waves.min.js"></script>
+	<script src="vendor/wow/wow.min.js"></script>
+	<script src="js/nativedroid2.js"></script>
+	<script src="js/nd2settings.js"></script>
+	
+	<!-- funzioni js -->
+	<script src="js/utilities.js"></script>
+	<script src="js/functions.js"></script>
+	
+	<script src="cordova.js"></script>
+
+</body>
+</html>

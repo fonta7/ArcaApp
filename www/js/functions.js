@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////
 // VARIABILI
 //////////////////////////////////////////////////
-var API_PATH = "http://www.arcadistribution.com/tco/api/app/";
+var API_PATH = "https://www.arcadistribution.com/tco/api/app/";
 var NUMERO_RIGHE_ORDINE = 30;
 
 
@@ -54,10 +54,10 @@ $( "#login_form_submit" ).bind( "click", function(){
       
       try{
         
-        //verifico se il login è stato effettuato correttamente
+        //verifico se il login ï¿½ stato effettuato correttamente
         if(isJSON(response)){
 
-          //verifico se ho già effettuato il caricamento dei dati nella giornata odierna
+          //verifico se ho giï¿½ effettuato il caricamento dei dati nella giornata odierna
           var login = JSON.parse(response);
           var agente = JSON.parse(localStorage.getItem('agente'));
 
@@ -92,7 +92,7 @@ $( "#login_form_submit" ).bind( "click", function(){
                 
             }
             
-            //se non sono mai state salvate le credenziali o se la data di scadenza è passata
+            //se non sono mai state salvate le credenziali o se la data di scadenza ï¿½ passata
             if(aggiorna_credenziali === true){
               var credenziali_nuove = {};
               credenziali_nuove.username = username;
@@ -143,7 +143,7 @@ $( "#login_form_submit" ).bind( "click", function(){
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       
-      //verifico se l'utente si era già loggato ed eventualmente verifico i dati con l'ultimo login effettuato
+      //verifico se l'utente si era giï¿½ loggato ed eventualmente verifico i dati con l'ultimo login effettuato
       if(localStorage.getItem('agente') !== null){
         
         var agente = JSON.parse(localStorage.getItem('agente'));
@@ -346,7 +346,7 @@ function importOrdiniStorico(codice_agente, token){
   
 }
 
-//STEP4 import storico ordini
+//STEP4 import bozze ordini
 function importOrdiniBozze(codice_agente, token){
   
   console.log('IMPORTAZIONE BOZZE ORDINI >> codice:' + codice_agente + ' - token:' + token);
@@ -415,14 +415,54 @@ function importModalitaPagamento(codice_agente, token){
         //mostro il messaggio di importazione
         $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO DATI AGGIUNTIVI</h2></li>");
 
-        //recupero via ajax gli articoli
+        //lancio lo step successivo di importazione
+        importSituazioneCrediti(codice_agente, token);
+
+      }catch(err){
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO DATI AGGIUNTIVI</h2></li>");
+        $.mobile.loading( "hide" );
+      }  
+
+    },
+    error: function (xhr, status) {
+      console.log("Error " + status + ": "+ xhr);
+      $.mobile.loading( "hide" );
+    }
+  });
+  
+}
+
+//STEP6 import situazione crediti
+function importSituazioneCrediti(codice_agente, token){
+  
+  console.log('IMPORTAZIONE SITUAZIONE CREDITI >> codice:' + codice_agente + ' - token:' + token);
+  
+  $.ajax({
+    url: API_PATH + 'situazione_crediti.php',
+    type: "POST",   
+    crossDomain: true,
+    data: {
+      codice_agente: codice_agente,
+      token: token
+    },
+    success: function(response){
+      
+      try{
+        
+        //effettuo il salvataggio dei dati json dell'agente nel local storage
+        localStorage.setItem('situazione_crediti', response);
+        
+        //mostro il messaggio di importazione
+        $('.response_msg').append("<li><img src=\"img/button_confirm.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO SITUAZIONE CREDITI</h2></li>");
+
+        //nascondo il loader
         $.mobile.loading( "hide" );
         
         //effettuo il redirect dopo 1 secondo
         setTimeout( function(){ location.href="home_ordini.html"; }, 1000 );
 
       }catch(err){
-        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO DATI AGGIUNTIVI</h2></li>");
+        $('.response_msg').append("<li><img src=\"img/button_close.png\" class=\"ui-thumbnail ui-thumbnail-circular\" /><h2>AGGIORNAMENTO SITUAZIONE CREDITI</h2></li>");
         $.mobile.loading( "hide" );
       }  
 
@@ -690,7 +730,7 @@ function creaRigheOrdine(id_riga) {
                   "<input type=\"text\" name=\"prezzo\" id=\"prezzo_" + id_riga + "\" value=\"\" style=\"text-align:right\" READONLY >" +
                 "</td>" +
                 "<td>" +
-                  "<input type=\"number\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right\" onChange=\"ricalcolaTotali(" + id_riga + ");\" onFocus=\"verificaArticoloSelezionato(" + id_riga + ");\" >" +
+                  "<input type=\"number\" name=\"qta\" id=\"qta_" + id_riga + "\" value=\"\" style=\"text-align:right; float:left;\" onChange=\"ricalcolaTotali(" + id_riga + ");\" onFocus=\"verificaArticoloSelezionato(" + id_riga + ");\" >" +
                 "</td>" +
                 "<td class=\"campo_omaggio\">" +
                   "<input type=\"checkbox\" id=\"omaggio_" + id_riga + "\" value=\"1\"  onChange=\"ricalcolaTotali(" + id_riga + ");\" >" +
@@ -708,10 +748,10 @@ function creaRigheOrdine(id_riga) {
 }
 
 //funzione attivata all'onfocus sul campo qta
-//per verificare se l'articolo è già stato caricato o va effettuata la ricerca
+//per verificare se l'articolo ï¿½ giï¿½ stato caricato o va effettuata la ricerca
 function verificaArticoloSelezionato(id_riga){
   
-  //se è stato inserito il codice ma non è stato ancora valorizzato il prezzo verifico se il campo descrizione è già stato valorizzato
+  //se ï¿½ stato inserito il codice ma non ï¿½ stato ancora valorizzato il prezzo verifico se il campo descrizione ï¿½ giï¿½ stato valorizzato
   if(document.getElementById('codice_' + id_riga).value !== "" && document.getElementById('prezzo_' + id_riga).value === ""){
     ricercaArticolo(id_riga);
   }
@@ -734,21 +774,22 @@ function ricercaArticolo(id_riga){
   $.each( articoli, function( codice_articolo, articolo ){
     var descrizione_articolo = articolo.descrizione;
     var confezione_articolo = articolo.confezione;
+    var giacenza_articolo = articolo.giacenza;
     
     //aggiungo un carattere fittizio davanti a codice articolo e descrizione
     codice_articolo_confronto = "#" + codice_articolo;
     descrizione_articolo_confronto = "#" + descrizione_articolo;
     
-    //se è stato inserito il codice articolo effettuo la ricerca solo per codice (dall'inizio della stringa)
+    //se Ã¨ stato inserito il codice articolo effettuo la ricerca solo per codice (dall'inizio della stringa)
     if(codice_ricerca !== "" && codice_articolo_confronto.toLowerCase().indexOf( codice_ricerca.toLowerCase() ) === 1){
       
-      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo);
+      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo + "| (giac. " + giacenza_articolo + " PZ)" );
       numero_risultati_ricerca++;
     
     }//altrimenti effettuo la ricerca per descrizione (all'interno della stringa)
     else if(codice_ricerca === "" && descrizione_ricerca !== "" && descrizione_articolo_confronto.toLowerCase().indexOf( descrizione_ricerca.toLowerCase() ) > 0){
       
-      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo);
+      risultati_ricerca.push(codice_articolo + "|" + descrizione_articolo + "|" + confezione_articolo + "| (giac. " + giacenza_articolo + " PZ)" );
       numero_risultati_ricerca++;
       
     }
@@ -783,7 +824,7 @@ function ricercaArticolo(id_riga){
           if(dati_articolo[1].length>50){
             descrizione_articolo = dati_articolo[1].substring(1, 47) + "...";
           }        
-          list += dati_articolo[0] + " | " + descrizione_articolo + " | " + dati_articolo[2];
+          list += dati_articolo[0] + " | " + descrizione_articolo + " - " + dati_articolo[2] + " - " + dati_articolo[3];
           
         list += "</a>";
       list += "</li>";
@@ -847,29 +888,41 @@ function inserisciRigaArticolo(id_riga, codice_articolo_selezionato, tipo){
   $('#descrizione_' + id_riga).hide();
   $('#view_codice_' + id_riga).html( articolo_selezionato.codice_articolo );
   $('#view_descrizione_' + id_riga).html( articolo_selezionato.descrizione );
+
+  //placeholder con la giacenza
+  if(articolo_selezionato.giacenza != ""){
+    $('#qta_' + id_riga).attr('placeholder', "(" + articolo_selezionato.giacenza + ")" );
+  } 
   
   //modifico l'icona a inizio riga per consentire il reset della stessa
   $('#ricerca_riga_' + id_riga).hide();
   $('#reset_riga_' + id_riga).show();  
   
   
-  //richiamo il popup del controllo disponibilità
+  //richiamo il popup del controllo disponibilitï¿½
   popupDisponibilita(id_riga, articolo_selezionato);
   
 }
 
 
-//funzione per aprire il popup di visualizzazione della disponibilità dell'articolo
+//funzione per aprire il popup di visualizzazione della disponibilita dell'articolo
 function popupDisponibilita(id_riga, articolo_selezionato){
-      
-  disponibile=articolo_selezionato.disponibile * 1;
-  disponibile_da=articolo_selezionato.disponibile_da;
   
-  //se l'articolo non è disponibile mostro il popup di segnalazione  
+  disponibile = 1;
+  if(articolo_selezionato.giacenza != ""){
+    if(articolo_selezionato.giacenza <= 0) disponibile = 0;
+  }else{
+    disponibile = articolo_selezionato.disponibile * 1;
+  } 
+
+  //se l'articolo non e disponibile mostro il popup di segnalazione  
   if(disponibile != 1){
     
     var msg="";
     msg = "L'articolo momentaneamente non &egrave; disponibile a magazzino.";
+
+    //controllo se e presente la data disponibilita
+    disponibile_da = articolo_selezionato.disponibile_da;
 		if(disponibile_da !== "") msg += "<br/>L'articolo sar&agrave; nuovamente disponibile dal <b>" + disponibile_da + "</b>.";
     
     //salvo l'id_riga ed il contenuto dell'articolo in un campo input nascosto
@@ -910,7 +963,7 @@ function popupPromozioni(id_riga, articolo_selezionato, tipo){
   qta3 = articolo_selezionato.qta3 * 1;
   sconto_qta3 = articolo_selezionato.sconto_qta3 * 1;  
 
-  //se per l'articolo è disponibile una promo mostro il popup di selezione
+  //se per l'articolo ï¿½ disponibile una promo mostro il popup di selezione
   if(qta1>0){
   
     var string_qtal = "Nessuno sconto presente";
@@ -1010,7 +1063,7 @@ function popupTaglieColori(id_riga, articolo_selezionato, tipo){
   taglie=articolo_selezionato.taglie;
   colori=articolo_selezionato.colori;
   
-  //se l'articolo è a taglia / colore mostro il popup di selezione
+  //se l'articolo ï¿½ a taglia / colore mostro il popup di selezione
   var selezione_taglia_colore = "";
   if(taglie !== "" || colori !== ""){
     
@@ -1343,7 +1396,7 @@ function creaOrdine_AggiungiRighe(tipo){
   //aggiungo i dati relativi alle righe ordine e lo risalvo
   ordine.righe = righe;
   
-  //se il tipo è bozza
+  //se il tipo ï¿½ bozza
   if(tipo == "bozza"){
     
     //ciclo le bozze presenti
@@ -1385,7 +1438,7 @@ function creaOrdine_AggiungiRighe(tipo){
   var ordine_json = JSON.stringify(ordine);
   localStorage.setItem('ordine', ordine_json);
   
-  //se il tipo è ordine reindirizzo allo step3
+  //se il tipo ï¿½ ordine reindirizzo allo step3
   if(tipo == "ordine") ordiniCreazioneStep3();
   
 }
@@ -1433,7 +1486,7 @@ function ordiniCreazioneStep3(){
   
   
    
-  //imposto le opzioni di selezione della modalità di pagamento
+  //imposto le opzioni di selezione della modalitï¿½ di pagamento
   var modalita_pagamento = JSON.parse(localStorage.getItem('pagamento'));
   $.each( modalita_pagamento, function( codice, descrizione ){
     if(codice !== ""){
@@ -1443,7 +1496,7 @@ function ordiniCreazioneStep3(){
       }));
     }
   });
-  //imposto la modalità di default per il cliente
+  //imposto la modalitï¿½ di default per il cliente
   $('#modalita_pagamento').val(modalita_pagamento_cliente).change();
 
   
@@ -1578,7 +1631,7 @@ function esportazioneOrdine(){
         //verifico se l'ordine era stato generato da una bozza
         if(ordine.bozza_id !== ""){
           
-          //rimuovo la bozza dalla quale è stato generato l'ordine       
+          //rimuovo la bozza dalla quale ï¿½ stato generato l'ordine       
           var bozze = JSON.parse(localStorage.getItem('ordini_bozze'));
           console.log(bozze);
           
@@ -1616,10 +1669,10 @@ function esportazioneOrdine(){
     },
     error: function(XMLHttpRequest, textStatus, errorThrown) {
       
-      //se non è presente una connessione allora procedo con il salvataggio in locale dell'ordine
+      //se non ï¿½ presente una connessione allora procedo con il salvataggio in locale dell'ordine
       alert("Connessione assente, effettuare l'esportazione con una connessione attiva");
       
-      //verifico se è già presente nel localstorage il file contenente gli ordini da esportare
+      //verifico se ï¿½ giï¿½ presente nel localstorage il file contenente gli ordini da esportare
       //if(localStorage.getItem('ordini_da_esportare') !== null){
       //  alert('creazione archivio ordine');
       //}
