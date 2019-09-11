@@ -166,6 +166,7 @@ body { opacity: 0; }
     #ordiniCreazionePage { display:none; }
     #ordiniStorico { display:none; }
     #ordiniBozze { display:none; }
+    #situazioneCreditiPage { display:none; }
     
     #warning-message-portrait {
         text-align:center;
@@ -185,10 +186,12 @@ body { opacity: 0; }
 }
 
 /* tabella righe ordine */
-table#righe-ordine{
+table#righe-ordine,
+table#righe{
     width:100%;
 }
-table#righe-ordine th{
+table#righe-ordine th,
+table#righe th{
     padding: 8px 0px 5px 0px;
     font-size:1em;
     text-transform: uppercase;
@@ -196,10 +199,15 @@ table#righe-ordine th{
     font-weight:bold;
     text-align:center;
 }
-table#righe-ordine td{
+table#righe-ordine td,
+table#righe td{
     padding: 10px 6px;
     font-size:1em;
     border-bottom:1px solid #eeeeee;
+}
+table#righe tr.totale{
+    font-weight: bold;
+    background-color: #dddddd;
 }
 table#righe-ordine td span.descrizione_articolo{
     text-transform: uppercase;

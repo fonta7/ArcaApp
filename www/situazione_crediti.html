@@ -40,7 +40,7 @@
 			<!-- parte di destra -->
 			<div class="buttons">
 				
-				<span class=step1>
+				<span class="arrow-back" >
 					<img src="img/arrow-left.png" class="btn-header-right" onClick="location.href='situazione_crediti.html';" >
 				</span>
 				
@@ -57,21 +57,21 @@
 			
 			
 			<!-- selezione dato da visualizzare -->
-			<div class="button_menu">
+			<div class="step1 button_menu">
 
-				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary">
+				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary" onClick="viewScadenzarioRibaData();" >
 					<i class='zmdi zmdi-money'></i> SCADENZARIO RIBA PER DATA
 				</a>
 						
 				<br/>
 				
-				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary">
+				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary" onClick="viewScadenzarioAltroCliente();" >
 					<i class='zmdi zmdi-money'></i> SCADUTO R.D., BONIFICI ED INSOLUTI PER CLIENTE
 				</a>
 				
 				<br/>
 				
-				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary">
+				<a href="" data-ajax="false" class="ui-btn ui-btn-raised clr-primary" onClick="viewScadenzarioAltroData();" >
 					<i class='zmdi zmdi-money'></i> SCADUTO R.D., BONIFICI ED INSOLUTI PER DATA
 				</a>
 
@@ -82,31 +82,36 @@
 			<div class="step2" >
 
 				<!-- form ricerca -->
-				<form>		
-					
+				<form class="filtro-ricerca" >	
+
+					<!-- visualizzazione selezionata -->
+					<input type="hidden" id="current_view" value="" >
+
 					<!-- cliente -->
-					<label for="cliente" class="select">Cliente</label>
-					<select id="cliente" ></select>
+					<label for="filtro_cliente" class="select">Selezione cliente</label>
+					<select id="filtro_cliente" onChange="filterView();" ></select>
 					
 					<!-- data da -->
-					<label for="da_data">Da data</label>
-					<input type="date" name="da_data" id="da_data" value="" placeholder="">
-															
+					<label for="filtro_da_data">Selezione da data scadenza</label>
+					<input type="date" id="filtro_da_data" value="" placeholder="" onChange="filterView();" >
+					
+					<br/><br/><br/>
+
 				</form>	
 								
-				<br/>
+				
 					
 				<!-- tabella con righe situazione crediti -->
-				<table id="righe-situazione-crediti" border=0 cellspacing=0 cellpadding=0 width=100% >
+				<table id="righe" border=0 cellspacing=0 cellpadding=0 >
 					
 					<!-- header -->
 					<thead>
 						<tr>
-							<th>cliente</th>
-							<th>scadenza</th>
-							<th>incasso</th>
-							<th>importo</th>
-							<th>documento</th>
+							<th width=40% >cliente</th>
+							<th width=10% >scadenza</th>
+							<th width=20% >incasso</th>
+							<th width=10% >importo</th>
+							<th width=20% >documento</th>
 						</tr>						
 					</thead>
 					
@@ -126,7 +131,7 @@
 	
 	<!-- messaggio rotazione telefono -->	
 	<div id="warning-message-portrait">
-		Ruota il telefono in orizzontale per visualizzare la situazione crediti
+		Ruota il telefono in orizzontale per visualizzare la situazione crediti!
 	</div>
 	
 	
@@ -146,6 +151,7 @@
 	<!-- funzioni js -->
 	<script src="js/utilities.js"></script>
 	<script src="js/functions.js"></script>
+	<script src="js/functions_situazionecrediti.js"></script>
 	
 	<script src="cordova.js"></script>
 
